@@ -40,13 +40,14 @@ import java.awt.Color;
 import javax.swing.JSplitPane;
 
 public class VentanaPrincipal {
-
+	private static String currentDirectory = "";
 	private JFrame frmTextoASubttulos;
 	private JTextArea textArea;
 	private JComboBox list;
 	private JComboBox list_1;
 	private JScrollPane scrollPane_1;
 	private JTextArea txtrHolaEsteEs;
+	private JButton btnExportar = new JButton("Exportar");
 
 	/**
 	 * Launch the application.
@@ -57,7 +58,7 @@ public class VentanaPrincipal {
 			public void run() {
 				try {
 					VentanaPrincipal window = new VentanaPrincipal();
-					String currentDirectory = System.getProperty("user.dir");
+					currentDirectory = System.getProperty("user.dir");
                     window.frmTextoASubttulos.setTitle(currentDirectory);
 					window.frmTextoASubttulos.setVisible(true);
 				} catch (Exception e) {
@@ -123,7 +124,6 @@ public class VentanaPrincipal {
 		separator_1.setOrientation(SwingConstants.VERTICAL);
 		toolBar.add(separator_1);
 		
-		JButton btnExportar = new JButton("Exportar");
 		btnExportar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				saveTextAreaToFile(textArea);
@@ -241,6 +241,7 @@ public class VentanaPrincipal {
 	}
 	
 	public void saveTextAreaToFile(JTextArea textArea) {
+		this.btnExportar.setEnabled(false);
         // Obtener el texto del JTextArea
         String text = textArea.getText();
         
@@ -257,9 +258,10 @@ public class VentanaPrincipal {
             writer.write(text);
             //System.out.println("El archivo se ha guardado como: " + fileName);
             JOptionPane.showMessageDialog(null, "El archivo de subtítulos se ha guardado como: " + 
-                                                fileName);
+                                                fileName + "\nen " + currentDirectory);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
         }
+        this.btnExportar.setEnabled(true);
     }
 }

@@ -1,0 +1,7 @@
+1
+00:00:00,000 --> 00:00:03,600
+Hola, este es el primer subtítulo.
+
+2
+00:00:05,600 --> 00:00:08,600
+Este es el segundo subtítulo.

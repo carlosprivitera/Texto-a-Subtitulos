@@ -16,8 +16,11 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -48,6 +51,7 @@ public class VentanaPrincipal {
 	private JScrollPane scrollPane_1;
 	private JTextArea txtrHolaEsteEs;
 	private JButton btnExportar = new JButton("Exportar");
+	private JComboBox list_2 = new JComboBox();
 
 	/**
 	 * Launch the application.
@@ -126,10 +130,21 @@ public class VentanaPrincipal {
 		
 		btnExportar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				saveTextAreaToFile(textArea);
+				String[] p = new String[3];
+				String s = list_2.getSelectedItem().toString();
+				p = s.split(" ");
+				int i = list_2.getSelectedIndex();
+				if(i==0) p[1]="\n";   //LinuxUNIX
+				if(i==1) p[1]="\n";   //LinuxUNIX
+				if(i==2) p[1]="\r\n"; //Windows
+				if(i==3) p[1]="\r\n"; //Windows
+				saveTextAreaToFile(textArea, p[0], p[1], p[2]);
 			}
 		});
 		toolBar.add(btnExportar);
+		
+		list_2.setModel(new DefaultComboBoxModel(new String[] {"UTF-8 \\n LinuxUNIX", "UTF-16 \\n LinuxUNIX", "UTF-8 \\r\\n Windows", "UTF-16 \\r\\n Windows"}));
+		toolBar.add(list_2);
 		
 		Component verticalStrut_1 = Box.createVerticalStrut(20);
 		toolBar.add(verticalStrut_1);
@@ -239,7 +254,8 @@ public class VentanaPrincipal {
 		this.textArea.setText(titulosSTR);
 	  }
 	}
-	
+
+/**	
 	public void saveTextAreaToFile(JTextArea textArea) {
 		this.btnExportar.setEnabled(false);
         // Obtener el texto del JTextArea
@@ -264,4 +280,37 @@ public class VentanaPrincipal {
         }
         this.btnExportar.setEnabled(true);
     }
+
+**/	
+	
+	public void saveTextAreaToFile(JTextArea textArea, String encoding, String lineSeparator, String lineSeparatorOS ) {
+        this.btnExportar.setEnabled(false);
+
+        // Obtener el texto del JTextArea
+        String text = textArea.getText();
+
+        // Reemplazar los saltos de línea con el lineSeparator especificado
+        text = text.replace("\n", lineSeparator);
+
+        // Obtener la fecha y hora actuales
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HHmmss");
+        String formattedDateTime = now.format(formatter);
+
+        // Crear el nombre del archivo
+        String fileName = "Subtítulos" + encoding + "" + lineSeparatorOS + "" + formattedDateTime + ".srt";
+
+        // Guardar el contenido en el archivo con la codificación especificada
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName), encoding))) {
+            writer.write(text);
+            JOptionPane.showMessageDialog(null, "El archivo de subtítulos se ha guardado como: " + 
+                                                fileName + "\nen " + System.getProperty("user.dir"));
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
+        }
+        
+        this.btnExportar.setEnabled(true);
+    }
+	
+	
 }

@@ -1,0 +1,24 @@
+1
+00:00:00,000 --> 00:00:02,099
+Virtualizador Cajas de Linux Debian
+
+2
+00:00:04,099 --> 00:00:08,239
+Instalando un segundo sistema de almacenamiento en Cajas Linux Debian
+
+3
+00:00:10,239 --> 00:00:16,000
+Configurando el virtualizador Cajas de Linux Debian con un segundo dispositivo de almacenamiento
+
+4
+00:00:18,000 --> 00:00:22,799
+Paso 01 – Crear un archivo de imagen para el nuevo dispositivo de almacenamiento
+
+5
+00:00:24,799 --> 00:00:29,479
+Ejecutar el siguiente comando para crear un archivo de imagen de 50 Giga Bytes
+
+6
+00:00:31,479 --> 00:00:37,239
+$ qemu-img create -f qcow2 /home/carlos/.local/share/gnome-boxes/images/nuevo-disco50G.qcow2 50G
+

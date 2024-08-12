@@ -10,7 +10,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JLabel;
 import javax.swing.JButton;
 import javax.swing.JTextArea;
-import java.awt.List;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
@@ -18,17 +17,12 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import javax.swing.JTextField;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
-import javax.swing.AbstractListModel;
-import javax.swing.ListSelectionModel;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 import java.awt.Component;
@@ -39,14 +33,13 @@ import java.awt.event.ActionEvent;
 import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
-import java.awt.Color;
 import javax.swing.JSplitPane;
 
 public class VentanaPrincipal {
 	private static String currentDirectory = "";
 	private JFrame frmTextoASubttulos;
 	private JTextArea textArea;
-	private JComboBox list;
+	private JComboBox list=null;
 	private JComboBox list_1;
 	private JScrollPane scrollPane_1;
 	private JTextArea txtrHolaEsteEs;
@@ -149,7 +142,8 @@ public class VentanaPrincipal {
 		Component verticalStrut_1 = Box.createVerticalStrut(20);
 		toolBar.add(verticalStrut_1);
 		
-		JLabel lblNewLabel_1 = new JLabel("Segundos entre párrafos:");
+		JLabel lblNewLabel_1 = new JLabel("SEP");
+		lblNewLabel_1.setToolTipText("Segundos entre párrafos");
 		toolBar.add(lblNewLabel_1);
 		
 		list = new JComboBox();
@@ -157,12 +151,13 @@ public class VentanaPrincipal {
 		list.setSelectedIndex(1);
 		toolBar.add(list);
 		
-		JLabel lblNewLabel_2 = new JLabel("Milisegundos por letra:");
+		JLabel lblNewLabel_2 = new JLabel("MPP");
+		lblNewLabel_2.setToolTipText("Milisegundos por letra");
 		toolBar.add(lblNewLabel_2);
 		
 		list_1 = new JComboBox();
 		list_1.setModel(new DefaultComboBoxModel(new String[] {"10", "15", "20", "25", "30", "35", "40", "45", "50", "55", "60", "65", "70", "75", "80", "85", "90", "95", "100"}));
-		list_1.setSelectedIndex(10);
+		list_1.setSelectedIndex(8);
 		toolBar.add(list_1);
 		
 		JLabel lblNewLabel = new JLabel("Ayuda:");

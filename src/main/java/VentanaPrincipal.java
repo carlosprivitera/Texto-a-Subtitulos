@@ -194,8 +194,15 @@ public class VentanaPrincipal {
         // Get text from clipboard
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         String text = (String) clipboard.getData(DataFlavor.stringFlavor);
+        String text2 = (String) clipboard.getData(DataFlavor.stringFlavor);
+        //Procesar los párrafos separandolos.
+        text2 = procesarTextoParrafos(text2);
+        /////////////////////////////////////////////
+        //Procesar los párrafos separando las comas.
+        text2 = procesarTextoComas(text2);
+        /////////////////////////////////////////////
         this.txtrHolaEsteEs.setText(text);
-        String[] paragraphs = text.split("\n");
+        String[] paragraphs = text2.split("\n");
         StringBuilder srt = new StringBuilder();
         int counter = 1;
         float currentTime = 0.0f;
@@ -219,7 +226,45 @@ public class VentanaPrincipal {
 
         return srt.toString();
     }
-	
+
+    public static String procesarTextoParrafos(String texto) {
+	        // Expresión regular para detectar los párrafos que cumplen con las condiciones
+	        //String regex = "(?<=\\b[A-Z][^\\.]*)\\.(?=\\s+[a-z0-9])";
+    	    String regex = "(?<=\\b[A-Z][^\\.]*)\\.(?=\\s+[A-Z0-9])";
+	        String procesado = "";
+	        procesado =	texto;
+	        // Reemplazar el punto seguido de espacio por punto seguido de salto de línea
+	        procesado = procesado.replaceAll(regex, ".\n");
+	        
+	        
+	        // Expresión regular para detectar espacios en blanco al inicio de cada párrafo
+	        regex = "(?m)^\\s+";
+	        
+	        // Reemplazar los espacios en blanco al inicio de cada párrafo con una cadena vacía
+	        procesado = procesado.replaceAll(regex, "");
+	        	        
+	        
+	        return procesado;
+    }
+
+    public static String procesarTextoComas(String texto) {
+        // Expresión regular para detectar los párrafos que cumplen con las condiciones
+        String regexParrafo = "(?m)^[A-Z].*?[a-z0-9]\\.$";
+        String regexComa = ",\\s*";
+
+        // Procesar cada párrafo que cumple con las condiciones
+        StringBuilder resultado = new StringBuilder();
+        String[] parrafos = texto.split("\n"); //se sacó /n/n
+        for (String parrafo : parrafos) {
+            if (parrafo.matches(regexParrafo)) {
+                parrafo = parrafo.replaceAll(regexComa, ",\n");
+            }
+            resultado.append(parrafo).append("\n"); //se sacó /n/n
+        }
+
+        return resultado.toString().trim();
+    }
+    
 	private String formatTime(float seconds) {
         int hours = (int) seconds / 3600;
         int minutes = ((int) seconds % 3600) / 60;

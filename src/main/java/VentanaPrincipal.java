@@ -36,6 +36,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.JSplitPane;
 
 public class VentanaPrincipal {
+	//01
 	private static String currentDirectory = "";
 	private JFrame frmTextoASubttulos;
 	private JTextArea textArea;

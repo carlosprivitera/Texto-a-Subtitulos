@@ -43,6 +43,7 @@ import java.awt.Color;
 import javax.swing.JSplitPane;
 
 public class VentanaPrincipal {
+	//01
 	private static String currentDirectory = "";
 	private JFrame frmTextoASubttulos;
 	private JTextArea textArea;

@@ -216,7 +216,7 @@ public class VentanaPrincipal {
                 String startTime = formatTime(currentTime);
                 String endTime = formatTime(currentTime + duration);
 
-                srt.append(counter).append("\n");
+                srt.append("Subtítulo ").append(counter).append("\n");
                 srt.append(startTime).append(" --> ").append(endTime).append("\n");
                 srt.append(paragraph).append("\n\n");
 

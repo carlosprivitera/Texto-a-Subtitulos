@@ -6,7 +6,7 @@ input_path = sys.argv[1] if len(sys.argv) > 1 else "coqui_output.wav"
 output_path = "normalized_output.wav"
 
 # Comando FFmpeg para normalización EBU R128 (loudnorm)
-# ------------00000000000000000000
+# ···············
 cmd = [
     "ffmpeg", "-y",
     "-i", input_path,

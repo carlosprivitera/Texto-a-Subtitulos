@@ -158,7 +158,7 @@ public class VentanaPrincipal {
 		
 		list_1 = new JComboBox();
 		list_1.setModel(new DefaultComboBoxModel(new String[] {"10", "15", "20", "25", "30", "35", "40", "45", "50", "55", "60", "65", "70", "75", "80", "85", "90", "95", "100"}));
-		list_1.setSelectedIndex(8);
+		list_1.setSelectedIndex(12);
 		toolBar.add(list_1);
 		
 		JLabel lblNewLabel = new JLabel("Ayuda:");
@@ -172,17 +172,30 @@ public class VentanaPrincipal {
 		splitPane.setRightComponent(scrollPane);
 		
 		textArea = new JTextArea();
+		textArea.setLineWrap(true);
 		textArea.setFont(new Font("Nimbus Mono PS", Font.PLAIN, 16));
 		textArea.setEditable(false);
-		textArea.setText("1\n00:00:00,000 --> 00:00:03,600\nHola, este es el primer subtítulo.\n\n2\n00:00:05,600 --> 00:00:08,600\nEste es el segundo subtítulo.\n");
+		textArea.setText("Subtítulo 1\n"
+				+ "00:00:00,000 --> 00:00:00,149\n"
+				+ "Hola,\n"
+				+ "\n"
+				+ "Subtítulo 2\n"
+				+ "00:00:02,150 --> 00:00:03,019\n"
+				+ "este es el segundo subtítulo.\n"
+				+ "\n"
+				+ "Subtítulo 3\n"
+				+ "00:00:05,019 --> 00:00:05,860\n"
+				+ "Este es el tercer subtítulo."
+				+ "\n");
 		scrollPane.setViewportView(textArea);
 		
 		scrollPane_1 = new JScrollPane();
 		splitPane.setLeftComponent(scrollPane_1);
 		
 		txtrHolaEsteEs =   new JTextArea();
+		txtrHolaEsteEs.setLineWrap(true);
 		txtrHolaEsteEs.setFont(new Font("Nimbus Mono PS", Font.PLAIN, 16));
-		txtrHolaEsteEs.setText("Hola, este es el primer subtítulo.\nEste es el segundo subtítulo.\n");
+		txtrHolaEsteEs.setText("Hola,\n este es el segundo subtítulo.\nEste es el tercer subtítulo.\n");
 		scrollPane_1.setViewportView(txtrHolaEsteEs);
 	}
 
@@ -333,7 +346,7 @@ public class VentanaPrincipal {
         // Reemplazar los saltos de línea con el lineSeparator especificado
         text = text.replace("\n", lineSeparator);
 
-        // Obtener la fecha y hora actuales
+        // Obtener la fecha y hora actual
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HHmmss");
         String formattedDateTime = now.format(formatter);

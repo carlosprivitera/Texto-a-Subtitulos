@@ -15,12 +15,21 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.JOptionPane;
 import javax.swing.JComboBox;
@@ -46,6 +55,7 @@ public class VentanaPrincipal {
 	private JTextArea txtrHolaEsteEs;
 	private JButton btnExportar = new JButton("Exportar");
 	private JComboBox list_2 = new JComboBox();
+	private static VentanaPrincipal window = null;
 
 	/**
 	 * Launch the application.
@@ -55,7 +65,7 @@ public class VentanaPrincipal {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					VentanaPrincipal window = new VentanaPrincipal();
+					window = new VentanaPrincipal();
 					currentDirectory = System.getProperty("user.dir");
                     window.frmTextoASubttulos.setTitle(currentDirectory);
 					window.frmTextoASubttulos.setVisible(true);
@@ -76,6 +86,7 @@ public class VentanaPrincipal {
 	/**
 	 * Initialize the contents of the frame.
 	 */
+	JButton btnNewButton_2 = null;
 	private void initialize() {
 		frmTextoASubttulos = new JFrame();
 		frmTextoASubttulos.setTitle("Texto a subtítulos v15-06-24");
@@ -135,6 +146,17 @@ public class VentanaPrincipal {
 				saveTextAreaToFile(textArea, p[0], p[1], p[2]);
 			}
 		});
+		
+		btnNewButton_2 = new JButton("Generar WAV");
+		btnNewButton_2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			    window.btnNewButton_2.setEnabled(false);
+				btnNewButton_2Clicked(e);
+				window.btnNewButton_2.setEnabled(true);
+			}
+		});
+
+		toolBar.add(btnNewButton_2);
 		toolBar.add(btnExportar);
 		
 		list_2.setModel(new DefaultComboBoxModel(new String[] {"UTF-8 \\n LinuxUNIX", "UTF-16 \\n LinuxUNIX", "UTF-8 \\r\\n Windows", "UTF-16 \\r\\n Windows"}));
@@ -157,7 +179,7 @@ public class VentanaPrincipal {
 		toolBar.add(lblNewLabel_2);
 		
 		list_1 = new JComboBox();
-		list_1.setModel(new DefaultComboBoxModel(new String[] {"10", "15", "20", "25", "30", "35", "40", "45", "50", "55", "60", "65", "70", "75", "80", "85", "90", "95", "100"}));
+		list_1.setModel(new DefaultComboBoxModel(new String[] {"50", "60", "70", "80", "90", "100", "110", "120", "130", "140", "150", "160", "170", "180", "190", "200", "210", "120", "230"}));
 		list_1.setSelectedIndex(12);
 		toolBar.add(list_1);
 		
@@ -175,15 +197,15 @@ public class VentanaPrincipal {
 		textArea.setLineWrap(true);
 		textArea.setFont(new Font("Nimbus Mono PS", Font.PLAIN, 16));
 		textArea.setEditable(false);
-		textArea.setText("Subtítulo 1\n"
+		textArea.setText("1\n"
 				+ "00:00:00,000 --> 00:00:00,149\n"
-				+ "Hola,\n"
+				+ "Hola \n"
 				+ "\n"
-				+ "Subtítulo 2\n"
+				+ "2\n"
 				+ "00:00:02,150 --> 00:00:03,019\n"
-				+ "este es el segundo subtítulo.\n"
+				+ "Este es el segundo subtítulo, \ncon dos líneas de texto.\n"
 				+ "\n"
-				+ "Subtítulo 3\n"
+				+ "3\n"
 				+ "00:00:05,019 --> 00:00:05,860\n"
 				+ "Este es el tercer subtítulo."
 				+ "\n");
@@ -195,7 +217,7 @@ public class VentanaPrincipal {
 		txtrHolaEsteEs =   new JTextArea();
 		txtrHolaEsteEs.setLineWrap(true);
 		txtrHolaEsteEs.setFont(new Font("Nimbus Mono PS", Font.PLAIN, 16));
-		txtrHolaEsteEs.setText("Hola,\n este es el segundo subtítulo.\nEste es el tercer subtítulo.\n");
+		txtrHolaEsteEs.setText("Hola \nEste es el segundo subtítulo, \ncon dos líneas de texto.\nEste es el tercer subtítulo.\n");
 		scrollPane_1.setViewportView(txtrHolaEsteEs);
 	}
 
@@ -229,7 +251,7 @@ public class VentanaPrincipal {
                 String startTime = formatTime(currentTime);
                 String endTime = formatTime(currentTime + duration);
 
-                srt.append("Subtítulo ").append(counter).append("\n");
+                srt.append(counter).append("\n");
                 srt.append(startTime).append(" --> ").append(endTime).append("\n");
                 srt.append(paragraph).append("\n\n");
 
@@ -355,10 +377,10 @@ public class VentanaPrincipal {
         String fileName = "Subtítulos" + encoding + "" + lineSeparatorOS + "" + formattedDateTime + ".srt";
 
         // Guardar el contenido en el archivo con la codificación especificada
-        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName), encoding))) {
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("salida-srt/"+fileName), encoding))) {
             writer.write(text);
             JOptionPane.showMessageDialog(null, "El archivo de subtítulos se ha guardado como: " + 
-                                                fileName + "\nen " + System.getProperty("user.dir"));
+                                                fileName + "\n en: " + System.getProperty("user.dir") + "/salida-srt/");
         } catch (IOException e) {
             JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
         }
@@ -366,5 +388,152 @@ public class VentanaPrincipal {
         this.btnExportar.setEnabled(true);
     }
 	
-	
+	private void btnNewButton_2Clicked(ActionEvent e) {
+		// Verificar que haya texto seleccionado
+		if (textArea.getSelectedText() == null || textArea.getSelectedText().trim().isEmpty()) {
+			JOptionPane.showMessageDialog(null,
+					"Por favor, seleccioná uno o más bloques de subtítulos para convertir a voz.");
+			return;
+		}
+		// Verificar que haya un intérprete de Python instalado
+		try {
+			ProcessBuilder pb = new ProcessBuilder("python3", "--version");
+			pb.redirectErrorStream(true);
+			Process p = pb.start();
+			int exitCode = p.waitFor();
+			if (exitCode != 0) {
+				JOptionPane.showMessageDialog(null, "❌ Error: No se encontró Python 3 instalado en el sistema.");
+				return;
+			}
+		} catch (IOException | InterruptedException ex) {
+			JOptionPane.showMessageDialog(null, "❌ Error al verificar Python 3: " + ex.getMessage());
+			return;
+		}
+ 
+		//Copilot, crear la carpeta salida-wav si no existe
+		File salidaWavDir = new File("salida-wav"); // Ruta relativa al directorio actual
+		if (!salidaWavDir.exists()) { //Verifica si la carpeta no existe
+			salidaWavDir.mkdir(); // Crea la carpeta
+		} else {
+			// Copilot, si existe, eliminar todos los archivos dentro de la carpeta
+			// salida-wav
+			File[] files = salidaWavDir.listFiles();
+			if (files != null) {
+				for (File file : files) {
+					if (file.isFile()) {
+						file.delete(); // Elimina el archivo
+					}
+				}
+			}
+		}
+
+		
+		// Obtener el texto seleccionado
+
+		String seleccion = textArea.getSelectedText();
+
+	    if (seleccion == null || seleccion.trim().isEmpty()) {
+	        JOptionPane.showMessageDialog(null, "Por favor, seleccioná uno o más bloques de subtítulos para convertir.");
+	        return;
+	    }
+
+	    // Separar bloques por línea en blanco
+	    String[] bloques = seleccion.trim().split("\\n\\s*\\n");
+	    List<String> bloquesInvalidos = new ArrayList<>();
+
+	    for (String bloque : bloques) {
+	        String[] lineas = bloque.split("\\n");
+            //Copilot, poner en una variable booleana si la primera línea es un número entero válido
+	        if (lineas.length >= 3) {
+		        boolean esNumeroBloqueValido = false;
+				try {
+					Integer.parseInt(lineas[0].trim());
+					esNumeroBloqueValido = true;
+				} catch (NumberFormatException er) {
+					esNumeroBloqueValido = false;
+				}
+				//Copilot, verificar con un patron regex si la segunda línea es un tiempo válido
+				boolean esTiempoValido = lineas[1].matches("\\d{2}:\\d{2}:\\d{2},\\d{3} --> \\d{2}:\\d{2}:\\d{2},\\d{3}");
+				//Copilot, si no es un número válido o el tiempo no es válido, agregar el bloque a la lista de bloques inválidos
+				if (!esNumeroBloqueValido || !esTiempoValido) {
+					bloquesInvalidos.add(bloque);
+				}
+	        }else {
+	        	bloquesInvalidos.add(bloque);
+	        }
+	    }
+
+	    if (!bloquesInvalidos.isEmpty()) {
+	        JOptionPane.showMessageDialog(null, "❌ Se encontraron bloques mal formados.\nCada bloque debe tener al menos:\n- Número de bloque\n- Tiempo de la forma 00:00:00,000 --> 00:00:00,000 \n- Una o más líneas de texto\n\nCorrige antes de continuar.");
+	        return;
+	    }
+
+	    // Procesar cada bloque
+	    for (String bloque : bloques) {
+	        try {
+	            String[] lineas = bloque.split("\\n");
+	            String numeroBloque = lineas[0].trim();
+	            String texto = String.join(" ", Arrays.copyOfRange(lineas, 2, lineas.length)).trim();
+                //Copilot, si texto no termina con un punto, agregar uno al final. Excepto si ya tiene un caracter de los siguientes:,:
+				if (!texto.isEmpty() && !texto.endsWith(".") && !texto.endsWith(",") && !texto.endsWith(":")) {
+					texto += ".";
+				}
+	            // Verificar que el número del bloque es numérico
+	            int bloqueId = Integer.parseInt(numeroBloque);
+	            String bloqueStr = String.valueOf(bloqueId);
+
+	            // -------------------------------
+	            // Ejecutar coqui_script.py
+	            // -------------------------------
+	            ProcessBuilder pb1 = new ProcessBuilder(
+	                //"python3",
+            	    "python/coqui-venv/bin/python3",
+            	    "src-python/coqui_script.py",	            		
+	                texto,
+	                bloqueStr
+	            );
+	            pb1.environment().put("PYTHONPATH", "python/coqui-venv/bin");
+	            pb1.redirectErrorStream(true);
+	            pb1.directory(new File(".")); // raíz del proyecto
+	            System.out.println("Ejecutando bloque: " + bloqueStr + " En el directorio: " + pb1.directory().getAbsolutePath());
+	            
+	            Process p1 = pb1.start();
+	            try (BufferedReader reader = new BufferedReader(new InputStreamReader(p1.getInputStream()))) {
+	                String line;
+	                while ((line = reader.readLine()) != null) {
+	                    System.out.println("Salida: " + line);
+	                }
+	            }
+	            
+	            int error = p1.waitFor();
+	            if (error != 0) {
+	                System.err.println("Error: El proceso terminó con código " + error);
+	            } else {
+	                System.out.println("Proceso completado exitosamente.");
+	            }
+	            // -------------------------------
+	            // Ejecutar normalizar_volume.py
+	            // -------------------------------
+	            ProcessBuilder pb2 = new ProcessBuilder(
+	            	"python/coqui-venv/bin/python3",
+	                "src-python/normalizar_volume.py",
+	                bloqueStr
+	            );
+	            pb2.environment().put("PYTHONPATH", "python/coqui-venv/bin");
+	            pb2.redirectErrorStream(true);
+	            pb2.directory(new File("."));
+	            Process p2 = pb2.start();
+	            p2.waitFor();
+
+	            System.out.println("✅ Bloque procesado: " + bloqueStr);
+
+	        } catch (Exception ex) {
+	            ex.printStackTrace();
+	            JOptionPane.showMessageDialog(null, "❌ Error al procesar un bloque:\n" + ex.getMessage());
+	        }
+	    }
+
+	    JOptionPane.showMessageDialog(null, "✅ Conversión completa. Archivos de voz en la carpeta /salida-wav/");
+	    
+	}
 }

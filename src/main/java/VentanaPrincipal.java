@@ -49,6 +49,7 @@ public class VentanaPrincipal {
 	private static String currentDirectory = "";
 	private JFrame frmTextoASubttulos;
 	private JTextArea textArea;
+	//private JTextArea textArea_1;
 	private JComboBox list=null;
 	private JComboBox list_1;
 	private JScrollPane scrollPane_1;
@@ -109,58 +110,13 @@ public class VentanaPrincipal {
 		});
 		toolBar.add(btnNewButton);
 		
-		JButton btnNewButton_1 = new JButton("Pegar");
-		btnNewButton_1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				miButton_1actionPerformed(arg0);
-			}
-		});
-		
 		JSeparator separator = new JSeparator();
 		separator.setOrientation(SwingConstants.VERTICAL);
 		toolBar.add(separator);
-		toolBar.add(btnNewButton_1);
-		
-		JButton btnCopiar = new JButton("Copiar");
-		btnCopiar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				mibtnCopiarActionPerformer(arg0);
-			}
-		});
-		toolBar.add(btnCopiar);
 		
 		JSeparator separator_1 = new JSeparator();
 		separator_1.setOrientation(SwingConstants.VERTICAL);
 		toolBar.add(separator_1);
-		
-		btnExportar.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				String[] p = new String[3];
-				String s = list_2.getSelectedItem().toString();
-				p = s.split(" ");
-				int i = list_2.getSelectedIndex();
-				if(i==0) p[1]="\n";   //LinuxUNIX
-				if(i==1) p[1]="\n";   //LinuxUNIX
-				if(i==2) p[1]="\r\n"; //Windows
-				if(i==3) p[1]="\r\n"; //Windows
-				saveTextAreaToFile(textArea, p[0], p[1], p[2]);
-			}
-		});
-		
-		btnNewButton_2 = new JButton("Generar WAV");
-		btnNewButton_2.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			    window.btnNewButton_2.setEnabled(false);
-				btnNewButton_2Clicked(e);
-				window.btnNewButton_2.setEnabled(true);
-			}
-		});
-
-		toolBar.add(btnNewButton_2);
-		toolBar.add(btnExportar);
-		
-		list_2.setModel(new DefaultComboBoxModel(new String[] {"UTF-8 \\n LinuxUNIX", "UTF-16 \\n LinuxUNIX", "UTF-8 \\r\\n Windows", "UTF-16 \\r\\n Windows"}));
-		toolBar.add(list_2);
 		
 		Component verticalStrut_1 = Box.createVerticalStrut(20);
 		toolBar.add(verticalStrut_1);
@@ -183,23 +139,78 @@ public class VentanaPrincipal {
 		list_1.setSelectedIndex(12);
 		toolBar.add(list_1);
 		
-		JLabel lblNewLabel = new JLabel("Ayuda:");
-		panel.add(lblNewLabel, BorderLayout.SOUTH);
-		
 		JSplitPane splitPane = new JSplitPane();
 		splitPane.setDividerSize(5);
+		splitPane.setDividerLocation(400);
 		panel.add(splitPane, BorderLayout.CENTER);
 		
+		JPanel panel_3 = new JPanel();
+		splitPane.setLeftComponent(panel_3);
+		panel_3.setLayout(new BorderLayout(0, 0));
+		
+		JToolBar toolBar_1 = new JToolBar();
+		panel_3.add(toolBar_1, BorderLayout.NORTH);
+		
+		JButton btnNewButton_3 = new JButton("Leer");
+		btnNewButton_3.setToolTipText("Leer archivo *.txt");
+		toolBar_1.add(btnNewButton_3);
+		
+		JButton btnNewButton_4 = new JButton("Guardar");
+		btnNewButton_4.setToolTipText("Guardar archivo *.txt");
+		toolBar_1.add(btnNewButton_4);
+		
+		JButton btnNewButton_1 = new JButton("Pegar");
+		btnNewButton_1.setToolTipText("Pegar desde el porta papeles");
+		toolBar_1.add(btnNewButton_1);
+		
+		JButton btnNewButton_5 = new JButton("Convertir a srt ==>");
+		toolBar_1.add(btnNewButton_5);
+		
+		JPanel panel_5 = new JPanel();
+		panel_3.add(panel_5, BorderLayout.CENTER);
+		panel_5.setLayout(new BorderLayout(0, 0));
+		
+		scrollPane_1 = new JScrollPane();
+		panel_5.add(scrollPane_1);
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				miButton_1actionPerformed(arg0);
+			}
+		});
+		
+		JPanel panel_4 = new JPanel();
+		splitPane.setRightComponent(panel_4);
+		panel_4.setLayout(new BorderLayout(0, 0));
+		
+		JToolBar toolBar_2 = new JToolBar();
+		panel_4.add(toolBar_2, BorderLayout.NORTH);
+		
+		JButton btnCopiar = new JButton("Copiar");
+		btnCopiar.setToolTipText("Copiar al porta papeles los subtítulos");
+		toolBar_2.add(btnCopiar);
+		
+		btnNewButton_2 = new JButton("Generar WAV");
+		btnNewButton_2.setToolTipText("Generar archivos de sonido *.wav");
+		toolBar_2.add(btnNewButton_2);
+		btnExportar.setToolTipText("Exportar a un archivo *.srt");
+		toolBar_2.add(btnExportar);
+		toolBar_2.add(list_2);
+		
+		list_2.setModel(new DefaultComboBoxModel(new String[] {"UTF-8 \\n LinuxUNIX", "UTF-16 \\n LinuxUNIX", "UTF-8 \\r\\n Windows", "UTF-16 \\r\\n Windows"}));
+		
+		JPanel panel_2 = new JPanel();
+		panel_4.add(panel_2, BorderLayout.CENTER);
+		panel_2.setLayout(new BorderLayout(0, 0));
+		
 		JScrollPane scrollPane = new JScrollPane();
-		splitPane.setRightComponent(scrollPane);
+		panel_2.add(scrollPane, BorderLayout.CENTER);
 		
 		textArea = new JTextArea();
-		textArea.setLineWrap(true);
 		textArea.setFont(new Font("Nimbus Mono PS", Font.PLAIN, 16));
 		textArea.setEditable(false);
-		textArea.setText("1\n"
+		textArea.setText("\n1\n"
 				+ "00:00:00,000 --> 00:00:00,149\n"
-				+ "Hola \n"
+				+ "Hola, procesando títulos \n"
 				+ "\n"
 				+ "2\n"
 				+ "00:00:02,150 --> 00:00:03,019\n"
@@ -209,16 +220,43 @@ public class VentanaPrincipal {
 				+ "00:00:05,019 --> 00:00:05,860\n"
 				+ "Este es el tercer subtítulo."
 				+ "\n");
+		//$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 		scrollPane.setViewportView(textArea);
 		
-		scrollPane_1 = new JScrollPane();
-		splitPane.setLeftComponent(scrollPane_1);
+		btnExportar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				String[] p = new String[3];
+				String s = list_2.getSelectedItem().toString();
+				p = s.split(" ");
+				int i = list_2.getSelectedIndex();
+				if(i==0) p[1]="\n";   //LinuxUNIX
+				if(i==1) p[1]="\n";   //LinuxUNIX
+				if(i==2) p[1]="\r\n"; //Windows
+				if(i==3) p[1]="\r\n"; //Windows
+				saveTextAreaToFile(textArea, p[0], p[1], p[2]);
+			}
+		});
+		btnNewButton_2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			    window.btnNewButton_2.setEnabled(false);
+				btnNewButton_2Clicked(e);
+				window.btnNewButton_2.setEnabled(true);
+			}
+		});
+		btnCopiar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				mibtnCopiarActionPerformer(arg0);
+			}
+		});
 		
 		txtrHolaEsteEs =   new JTextArea();
-		txtrHolaEsteEs.setLineWrap(true);
+		scrollPane_1.add(txtrHolaEsteEs);
 		txtrHolaEsteEs.setFont(new Font("Nimbus Mono PS", Font.PLAIN, 16));
-		txtrHolaEsteEs.setText("Hola \nEste es el segundo subtítulo, \ncon dos líneas de texto.\nEste es el tercer subtítulo.\n");
+		txtrHolaEsteEs.setText("Hola, procesando títulos \nEste es el segundo subtítulo, \ncon dos líneas de texto.\nEste es el tercer subtítulo.\n");
 		scrollPane_1.setViewportView(txtrHolaEsteEs);
+		
+		JLabel lblNewLabel = new JLabel("Ayuda");
+		frmTextoASubttulos.getContentPane().add(lblNewLabel, BorderLayout.SOUTH);
 	}
 
 	private void mibtnCopiarActionPerformer(ActionEvent arg0) {
@@ -511,6 +549,14 @@ public class VentanaPrincipal {
 	            } else {
 	                System.out.println("Proceso completado exitosamente.");
 	            }
+	            //Copilot, será necesario cerrar, close(), algún recurso o stream aquí?
+	            // Copilot, cerrar el proceso p1
+	            p1.destroy(); // Liberar el objeto Process
+	            pb1 = null; // Liberar el objeto ProcessBuilder
+	            
+	            //Copilot, ejecutar sleep() durante un segundo para colaborar con otros procesos del sistema operativo antes de normalizar el archivo de audio.
+	            Thread.sleep(1000); // Esperar 1 segundo para evitar problemas de acceso al archivo
+	            
 	            // -------------------------------
 	            // Ejecutar normalizar_volume.py
 	            // -------------------------------
@@ -523,9 +569,25 @@ public class VentanaPrincipal {
 	            pb2.redirectErrorStream(true);
 	            pb2.directory(new File("."));
 	            Process p2 = pb2.start();
-	            p2.waitFor();
+	            
+				try (BufferedReader reader2 = new BufferedReader(new InputStreamReader(p2.getInputStream()))) {
+					String line2;
+					while ((line2 = reader2.readLine()) != null) {
+						System.out.println("Salida normalización: " + line2);
+					}
+				}
+	            
+	            int error2 = p2.waitFor();
+				if (error2 != 0) {
+					System.err.println("Error: El proceso de normalización terminó con código " + error2);
+				} else {
+					System.out.println("Proceso de normalización completado exitosamente.");
+				}
 
 	            System.out.println("✅ Bloque procesado: " + bloqueStr);
+	            
+	            p2.destroy(); // Liberar el objeto Process
+	            pb2 = null; // Liberar el objeto ProcessBuilder
 
 	        } catch (Exception ex) {
 	            ex.printStackTrace();

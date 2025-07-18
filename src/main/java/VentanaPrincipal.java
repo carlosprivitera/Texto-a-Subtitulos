@@ -33,6 +33,7 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.DefaultComboBoxModel;
 import java.awt.Component;
 import javax.swing.Box;
@@ -135,7 +136,7 @@ public class VentanaPrincipal {
 		toolBar.add(lblNewLabel_2);
 		
 		list_1 = new JComboBox();
-		list_1.setModel(new DefaultComboBoxModel(new String[] {"50", "60", "70", "80", "90", "100", "110", "120", "130", "140", "150", "160", "170", "180", "190", "200", "210", "120", "230"}));
+		list_1.setModel(new DefaultComboBoxModel(new String[] {"30", "35", "40", "45", "50", "55", "60", "65", "70", "75", "80", "85", "90", "95", "100", "110", "120", "130", "140"}));
 		list_1.setSelectedIndex(12);
 		toolBar.add(list_1);
 		
@@ -152,6 +153,11 @@ public class VentanaPrincipal {
 		panel_3.add(toolBar_1, BorderLayout.NORTH);
 		
 		JButton btnNewButton_3 = new JButton("Leer");
+		btnNewButton_3.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				btnNewButton_3actionPerformed(e);
+			}
+		});
 		btnNewButton_3.setToolTipText("Leer archivo *.txt");
 		toolBar_1.add(btnNewButton_3);
 		
@@ -257,6 +263,42 @@ public class VentanaPrincipal {
 		
 		JLabel lblNewLabel = new JLabel("Ayuda");
 		frmTextoASubttulos.getContentPane().add(lblNewLabel, BorderLayout.SOUTH);
+	}
+
+	private void btnNewButton_3actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		// Copilot, leer un archivo de texto y mostrar su contenido en el JTextArea textArea. Usar el componente JFileChooser para seleccionar el archivo,
+		// la interfaz gráfica de JFileChooser debe permitir: navegar por los directorio desde el raíz del proyecto Java, 
+		// seleccionar un archivo *.txt existente o crear un archivo del tipo *.xtx si no exsiste.
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setCurrentDirectory(new File(currentDirectory));
+		fileChooser.setDialogTitle("Seleccionar archivo de texto");
+		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		int result = fileChooser.showOpenDialog(frmTextoASubttulos);
+		if (result == JFileChooser.APPROVE_OPTION) {
+			File selectedFile = fileChooser.getSelectedFile();
+			try {
+				String content = new String(Files.readAllBytes(Paths.get(selectedFile.getAbsolutePath())));
+				textArea.setText(content);
+				txtrHolaEsteEs.setText(content);
+			} catch (IOException ex) {
+				JOptionPane.showMessageDialog(frmTextoASubttulos, "Error al leer el archivo: " + ex.getMessage(),
+						"Error", JOptionPane.ERROR_MESSAGE);
+			}
+		} else {
+			JOptionPane.showMessageDialog(frmTextoASubttulos, "Operación cancelada por el usuario.", "Información",
+					JOptionPane.INFORMATION_MESSAGE);
+		}
+		// Copilot, actualizar el título del JFrame con la ruta del archivo seleccionado.
+		File selectedFile = fileChooser.getSelectedFile();
+		if (selectedFile != null) {
+			String filePath = selectedFile.getAbsolutePath();
+			frmTextoASubttulos.setTitle("Texto a subtítulos - " + filePath);
+			currentDirectory = selectedFile.getParent(); // Actualizar el directorio actual
+		} else {
+			frmTextoASubttulos.setTitle("Texto a subtítulos");
+		}
+
 	}
 
 	private void mibtnCopiarActionPerformer(ActionEvent arg0) {

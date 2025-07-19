@@ -1,0 +1,119 @@
+Pasos para preparar una máquina anfitrión Debian Linux para virtualización
+
+Estos pasos no funcionan en una máquina virtual, crear una máquina virtual en otra máquina virtual no es recomendable. Se recomienda usar una máquina anfitrión con un Debian Linux. 
+
+Una máquina anfitrión tiene un sistema operativo instalado y funcionando correctamente, en este caso se usará un máquina anfitrión con Linux Debian 12.
+
+Paso número uno
+
+Activar en el BIOS la virtualización, cada computadora personal tiene una forma diferente para entrar al BIOS y activar la virtualizació.  
+
+Para verificar el tipo de virtualización que usa el sistema operativo, hay que buscar en el siguiente archivo: 
+
+    • /proc/cpuinfo
+
+las palabras: 
+
+    • svm o vmx
+
+Para buscar las palabras mencionadas, ejecutar cualquiera de estos comandos:
+
+    • $ sudo gedit /proc/cpuinfo
+    • $ grep -E --color 'vmx|svm' /proc/cpuinfo
+
+Significado de la palabra encontrada:
+    • svm: es una virtualización de un procesador de AMD
+    • vmx: es una virtualización de un procesador de Intel
+
+Paso número dos
+
+Verificar si la virtualización está activada y cuantos procesadores se usarán para virtualización. Ejecutar el siguiente comando:
+
+    • $ grep -E -c 'vmx|svm' /proc/cpuinfo
+
+Si la salida por terminal es un cero, significa que la virtualización no está activada y deberá ser activada en el BIOS, en caso contrario informará la cantidad de núcleos de CPU asignados para virtualización.
+
+Otros comandos útiles que informarán sobre la virtualización activada en la PC y configurada en el sistema operativo.
+
+    • $ lscpu
+    • $ lscpu | grep -E '|vmx|svm'
+    • $ cpuid
+    • $ cpuid | grep -i texto-a-buscar-virtualizatión
+    • $ sudo dmesg
+    • $ sudo dmesg | grep -i texto-a-buscar-virtualizatión
+    • $ ls /sys/devices/system/cpu/vulnerabilities/
+    • $ cat /sys/devices/system/cpu/vulnerabilities/mds
+    • $ cat /sys/devices/system/cpu/vulnerabilities/nombre-del-archivo-que-informa-vulnerabilidad
+
+
+
+Paso 03
+
+Instalar los paquetes de virtualización para virtualizar con QEMU/KVM. Ejecutar el siguiente comando:
+
+    • $ sudo apt install qemu-kvm libvirt-clients libvirt-daemon libvirt-daemon-system bridge-utils virtinst virt-manager
+
+
+Verificar que el servicio de virtualización está en ejecución. Ejecutar el siguiente comando:
+
+    • $ sudo systemctl status libvirtd.service
+
+Para ejecutar el servicio de virtualización en caso que no esté activo. Ejecutar el siguiente comando:
+
+    • $ sudo systemctl start libvirtd.service
+    • $ sudo systemctl start libvirtd.service 
+
+Para lanzar el servicio durante el arranque de Linux. Ejecutar el siguiente comando: 
+
+    • $ sudo systemctl enable libvirtd.service
+
+Paso 04
+
+Para activar la red y enumerar las redes disponibles para las máquinas virtuales creadas. Ejecutar los siguientes comandos:
+
+    • $ sudo virsh net-list --all
+    • $ sudo virsh net-start default
+    • $ sudo virsh net-autostart default
+
+Paso 05 
+
+Añadir usuarios Linux a los grupos 'libvirt' y 'libvirt-qemu'. Ejecutar los siguientes comandos:
+
+    • $ sudo adduser [nuestro usuario] libvirt
+    • $ sudo adduser [nuestro usuario] libvirt-qemu
+
+Paso 06
+
+Reiniciamos La PC. Ejecutar el siguiente comando:
+
+    • $ sudo reboot
+
+
+
+Instalar los programas clientes para gestionar máquinas virtuales
+
+
+Programa 01
+
+Instalar el Gestor de Máquinas Virtuales
+
+
+
+Programa 02
+
+Instalar Cajas
+
+
+
+
+Programa 03
+
+Descargar e instalar Virtual Box desde el siguiente sitio:
+
+https://www.virtualbox.org/
+https://www.virtualbox.org/wiki/Downloads
+https://www.virtualbox.org/wiki/Linux_Downloads
+
+ 
+
+

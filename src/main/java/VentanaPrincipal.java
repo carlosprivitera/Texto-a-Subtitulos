@@ -128,7 +128,7 @@ public class VentanaPrincipal {
 		
 		list = new JComboBox();
 		list.setModel(new DefaultComboBoxModel(new String[] {"1", "2", "3", "4", "5", "6", "7", "8", "9"}));
-		list.setSelectedIndex(1);
+		list.setSelectedIndex(0);
 		toolBar.add(list);
 		
 		JLabel lblNewLabel_2 = new JLabel("MPP");
@@ -137,7 +137,7 @@ public class VentanaPrincipal {
 		
 		list_1 = new JComboBox();
 		list_1.setModel(new DefaultComboBoxModel(new String[] {"30", "35", "40", "45", "50", "55", "60", "65", "70", "75", "80", "85", "90", "95", "100", "110", "120", "130", "140"}));
-		list_1.setSelectedIndex(12);
+		list_1.setSelectedIndex(8);
 		toolBar.add(list_1);
 		
 		JSplitPane splitPane = new JSplitPane();
@@ -155,13 +155,23 @@ public class VentanaPrincipal {
 		JButton btnNewButton_3 = new JButton("Leer");
 		btnNewButton_3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				btnNewButton_3.setEnabled(false);
 				btnNewButton_3actionPerformed(e);
+				btnNewButton_3.setEnabled(true);
 			}
 		});
 		btnNewButton_3.setToolTipText("Leer archivo *.txt");
 		toolBar_1.add(btnNewButton_3);
 		
 		JButton btnNewButton_4 = new JButton("Guardar");
+		btnNewButton_4.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+                btnNewButton_4.setEnabled(false);
+                guardarArchivoTxt();
+                btnNewButton_4.setEnabled(true);
+								
+			}
+		});
 		btnNewButton_4.setToolTipText("Guardar archivo *.txt");
 		toolBar_1.add(btnNewButton_4);
 		
@@ -170,6 +180,15 @@ public class VentanaPrincipal {
 		toolBar_1.add(btnNewButton_1);
 		
 		JButton btnNewButton_5 = new JButton("Convertir a srt ==>");
+		btnNewButton_5.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				btnNewButton_5.setEnabled(false);
+				// Copilot, llamar al método miButton_1actionPerformed() para convertir el texto
+				// a subtítulos
+				btnNewButton_5actionPerformed(e);
+				btnNewButton_5.setEnabled(true);
+			}
+		});
 		toolBar_1.add(btnNewButton_5);
 		
 		JPanel panel_5 = new JPanel();
@@ -180,7 +199,9 @@ public class VentanaPrincipal {
 		panel_5.add(scrollPane_1);
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				btnNewButton_1.setEnabled(false);
 				miButton_1actionPerformed(arg0);
+				btnNewButton_1.setEnabled(true);
 			}
 		});
 		
@@ -215,19 +236,6 @@ public class VentanaPrincipal {
 		textArea.setLineWrap(true);
 		textArea.setFont(new Font("Nimbus Mono PS", Font.PLAIN, 16));
 		textArea.setEditable(false);
-		textArea.setText("\n1\n"
-				+ "00:00:00,000 --> 00:00:00,149\n"
-				+ "Hola, procesando títulos \n"
-				+ "\n"
-				+ "2\n"
-				+ "00:00:02,150 --> 00:00:03,019\n"
-				+ "Este es el segundo subtítulo, \ncon dos líneas de texto.\n"
-				+ "\n"
-				+ "3\n"
-				+ "00:00:05,019 --> 00:00:05,860\n"
-				+ "Este es el tercer subtítulo."
-				+ "\n");
-		//$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 		scrollPane.setViewportView(textArea);
 		
 		btnExportar.addActionListener(new ActionListener() {
@@ -260,11 +268,46 @@ public class VentanaPrincipal {
 		txtrHolaEsteEs.setLineWrap(true);
 		scrollPane_1.add(txtrHolaEsteEs);
 		txtrHolaEsteEs.setFont(new Font("Nimbus Mono PS", Font.PLAIN, 16));
-		txtrHolaEsteEs.setText("Hola, procesando títulos \nEste es el segundo subtítulo, \ncon dos líneas de texto.\nEste es el tercer subtítulo.\n");
+		txtrHolaEsteEs.setText("Hola, procesando títulos \nEste es el segundo subtítulo, dividido en dos subtítulos.\nEste es el cuarto subtítulo.\n");
 		scrollPane_1.setViewportView(txtrHolaEsteEs);
 		
 		JLabel lblNewLabel = new JLabel("Ayuda");
 		frmTextoASubttulos.getContentPane().add(lblNewLabel, BorderLayout.SOUTH);
+	}
+
+	protected void guardarArchivoTxt() {
+		// TODO Auto-generated method stub
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setCurrentDirectory(new File(currentDirectory));
+		fileChooser.setDialogTitle("Guardar archivo de texto");
+		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		int result = fileChooser.showSaveDialog(frmTextoASubttulos);
+		if (result == JFileChooser.APPROVE_OPTION) {
+			File selectedFile = fileChooser.getSelectedFile();
+			try {
+				// Guardar el contenido del JTextArea en el archivo seleccionado
+				Files.write(Paths.get(selectedFile.getAbsolutePath()), txtrHolaEsteEs.getText().getBytes());
+				JOptionPane.showMessageDialog(frmTextoASubttulos,
+						"Archivo guardado correctamente: " + selectedFile.getAbsolutePath(), "Éxito",
+						JOptionPane.INFORMATION_MESSAGE);
+			} catch (IOException ex) {
+				JOptionPane.showMessageDialog(frmTextoASubttulos, "Error al guardar el archivo: " + ex.getMessage(),
+						"Error", JOptionPane.ERROR_MESSAGE);
+			}
+		} else {
+			JOptionPane.showMessageDialog(frmTextoASubttulos, "Operación cancelada por el usuario.", "Información",
+					JOptionPane.INFORMATION_MESSAGE);
+		}
+		// Copilot, actualizar el título del JFrame con la ruta del archivo seleccionado.
+		File selectedFile = fileChooser.getSelectedFile();
+		if (selectedFile != null) {
+			String filePath = selectedFile.getAbsolutePath();
+			frmTextoASubttulos.setTitle("Texto a subtítulos - " + filePath);
+			currentDirectory = selectedFile.getParent(); // Actualizar el directorio actual
+		} else {
+			frmTextoASubttulos.setTitle("Texto a subtítulos");
+		}
+		
 	}
 
 	private void btnNewButton_3actionPerformed(ActionEvent e) {
@@ -281,7 +324,7 @@ public class VentanaPrincipal {
 			File selectedFile = fileChooser.getSelectedFile();
 			try {
 				String content = new String(Files.readAllBytes(Paths.get(selectedFile.getAbsolutePath())));
-				textArea.setText(content);
+				//textArea.setText(content);
 				txtrHolaEsteEs.setText(content);
 			} catch (IOException ex) {
 				JOptionPane.showMessageDialog(frmTextoASubttulos, "Error al leer el archivo: " + ex.getMessage(),
@@ -308,25 +351,26 @@ public class VentanaPrincipal {
 		 copyToClipboard(textArea);
 	}
 
-	private String convertToSRT(Float timeBetweenParagraphs, Float timeBetweenLetters) throws IOException, UnsupportedFlavorException {
+	private String convertToSRT(Float timeBetweenParagraphs, Float timeBetweenLetters, String textoTXTaSRT) throws IOException, UnsupportedFlavorException {
         // Get text from clipboard
-        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-        String text = (String) clipboard.getData(DataFlavor.stringFlavor);
-        String text2 = (String) clipboard.getData(DataFlavor.stringFlavor);
+//##        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+//##        String text = (String) clipboard.getData(DataFlavor.stringFlavor);
+//##        String text2 = (String) clipboard.getData(DataFlavor.stringFlavor);
         //Procesar los párrafos separandolos.
-        text2 = procesarTextoParrafos(text2);
+		String text2 = procesarTextoParrafos(textoTXTaSRT);
         /////////////////////////////////////////////
         //Procesar los párrafos separando las comas.
         text2 = procesarTextoComas(text2);
         /////////////////////////////////////////////
-        this.txtrHolaEsteEs.setText(text);
+//##        this.txtrHolaEsteEs.setText(text);
         String[] paragraphs = text2.split("\n");
         StringBuilder srt = new StringBuilder();
         int counter = 1;
         float currentTime = 0.0f;
 
         for (String paragraph : paragraphs) {
-            if (!paragraph.trim().isEmpty()) {
+        	paragraph = paragraph.trim();
+            if (!paragraph.isEmpty()) {
                 int letterCount = paragraph.length();
                 float duration = letterCount * timeBetweenLetters;
 
@@ -399,15 +443,38 @@ public class VentanaPrincipal {
         clipboard.setContents(stringSelection, null);
     }
 	
+	protected void btnNewButton_5actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		  String titulosSTR = null;
+		  Float a = Float.parseFloat(list.getSelectedItem().toString());
+		  Float b = Float.parseFloat( this.list_1.getSelectedItem().toString()) / 1000;
+		  try {
+			String textoTXTaSRT = this.txtrHolaEsteEs.getText();
+			titulosSTR = convertToSRT(a, b, textoTXTaSRT);
+		  } catch (Exception er) {
+			// TODO Auto-generated catch block
+			JOptionPane.showMessageDialog(null, er.getMessage());
+		  }finally {
+			this.textArea.setText(titulosSTR);
+		  }		
+	}
+	
 	private void miButton_1actionPerformed(ActionEvent arg0) {
 	  String titulosSTR = null;
 	  Float a = Float.parseFloat(list.getSelectedItem().toString());
 	  Float b = Float.parseFloat( this.list_1.getSelectedItem().toString()) / 1000;
 	  try {
-		titulosSTR = convertToSRT(a, b);
+	    // Get text from clipboard
+		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+		String text2 = (String) clipboard.getData(DataFlavor.stringFlavor);
+		txtrHolaEsteEs.setText(text2);  
+		String textoTXTaSRT = this.txtrHolaEsteEs.getText();
+		titulosSTR = convertToSRT(a, b, textoTXTaSRT);
 	  } catch (IOException | UnsupportedFlavorException e) {
 		// TODO Auto-generated catch block
-		JOptionPane.showMessageDialog(null, e.getMessage());
+		JOptionPane.showMessageDialog(null, "Error al procesar el texto: " +  e.getMessage());
+	  } catch(Exception e) {
+		JOptionPane.showMessageDialog(null, "Error al procesar el texto: " + e.getMessage());  
 	  }finally {
 		this.textArea.setText(titulosSTR);
 	  }
@@ -459,7 +526,14 @@ public class VentanaPrincipal {
         String fileName = "Subtítulos" + encoding + "" + lineSeparatorOS + "" + formattedDateTime + ".srt";
 
         // Guardar el contenido en el archivo con la codificación especificada
-        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("salida-srt/"+fileName), encoding))) {
+        //Charset	Description
+        //US-ASCII	Seven-bit ASCII, a.k.a. ISO646-US, a.k.a. the Basic Latin block of the Unicode character set
+        //ISO-8859-1  	ISO Latin Alphabet No. 1, a.k.a. ISO-LATIN-1
+        //UTF-8	Eight-bit UCS Transformation Format
+        //UTF-16BE	Sixteen-bit UCS Transformation Format, big-endian byte order
+        //UTF-16LE	Sixteen-bit UCS Transformation Format, little-endian byte order
+        //UTF-16	Sixteen-bit UCS Transformation Format, byte order identified by an optional byte-order mark
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("salida-srt/"+fileName), "ISO-8859-1"))) {
             writer.write(text);
             JOptionPane.showMessageDialog(null, "El archivo de subtítulos se ha guardado como: " + 
                                                 fileName + "\n en: " + System.getProperty("user.dir") + "/salida-srt/");

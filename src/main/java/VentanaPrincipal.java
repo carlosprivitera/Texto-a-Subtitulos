@@ -212,6 +212,7 @@ public class VentanaPrincipal {
 		panel_2.add(scrollPane, BorderLayout.CENTER);
 		
 		textArea = new JTextArea();
+		textArea.setLineWrap(true);
 		textArea.setFont(new Font("Nimbus Mono PS", Font.PLAIN, 16));
 		textArea.setEditable(false);
 		textArea.setText("\n1\n"
@@ -256,6 +257,7 @@ public class VentanaPrincipal {
 		});
 		
 		txtrHolaEsteEs =   new JTextArea();
+		txtrHolaEsteEs.setLineWrap(true);
 		scrollPane_1.add(txtrHolaEsteEs);
 		txtrHolaEsteEs.setFont(new Font("Nimbus Mono PS", Font.PLAIN, 16));
 		txtrHolaEsteEs.setText("Hola, procesando títulos \nEste es el segundo subtítulo, \ncon dos líneas de texto.\nEste es el tercer subtítulo.\n");

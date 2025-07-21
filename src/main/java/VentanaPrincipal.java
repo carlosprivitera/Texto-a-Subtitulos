@@ -48,6 +48,7 @@ import javax.swing.JSplitPane;
 public class VentanaPrincipal {
 	//01
 	private static String currentDirectory = "";
+	private static final String directorioRaizProyectoJava = System.getProperty("user.dir");
 	private JFrame frmTextoASubttulos;
 	private JTextArea textArea;
 	//private JTextArea textArea_1;
@@ -216,7 +217,17 @@ public class VentanaPrincipal {
 		btnCopiar.setToolTipText("Copiar al porta papeles los subtítulos");
 		toolBar_2.add(btnCopiar);
 		
-		btnNewButton_2 = new JButton("Generar WAV");
+		JButton btnGenerarImagen = new JButton("PNG");
+		btnGenerarImagen.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				btnGenerarImagen.setEnabled(false);
+				btnGenerarImagenClicked(e);
+				btnGenerarImagen.setEnabled(true);
+			}
+		});
+		toolBar_2.add(btnGenerarImagen);
+		
+		btnNewButton_2 = new JButton("WAV");
 		btnNewButton_2.setToolTipText("Generar archivos de sonido *.wav");
 		toolBar_2.add(btnNewButton_2);
 		btnExportar.setToolTipText("Exportar a un archivo *.srt");
@@ -278,6 +289,42 @@ public class VentanaPrincipal {
 		
 		JLabel lblNewLabel = new JLabel("Ayuda");
 		frmTextoASubttulos.getContentPane().add(lblNewLabel, BorderLayout.SOUTH);
+	}
+
+	protected void btnGenerarImagenClicked(ActionEvent e) {
+		// TODO Auto-generated method stub
+	    try {
+	        String directorioImagenes = directorioRaizProyectoJava + "/salida-imagenes";
+	        String prompt = JOptionPane.showInputDialog("Ingresar el texto para generar la imagen en " + directorioImagenes + ":");
+	        if (prompt == null || prompt.trim().isEmpty()) return;
+
+	        List<String> command = new ArrayList<>();
+	        command.add("python/sd-venv/bin/python"); // Python del entorno virtual
+	        command.add("src-python/generar_imagen_sdxl.py");
+	        command.add(prompt); // Pasar el prompt como argumento
+
+	        ProcessBuilder pb = new ProcessBuilder(command);
+	        pb.directory(new File(directorioRaizProyectoJava)); // Raíz del proyecto
+	        pb.redirectErrorStream(true);
+	        Process process = pb.start();
+
+	        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+	            String line;
+	            while ((line = reader.readLine()) != null) System.out.println(line);
+	        }
+
+	        int exitCode = process.waitFor();
+	        if (exitCode == 0) {
+	            JOptionPane.showMessageDialog(null, "✅ Imagen generada exitosamente.");
+	        } else {
+	            JOptionPane.showMessageDialog(null, "❌ Error al generar imagen. Código: " + exitCode);
+	        }
+
+	    } catch (Exception ex) {
+	        ex.printStackTrace();
+	        JOptionPane.showMessageDialog(null, "⚠️ Ocurrió un error: " + ex.getMessage());
+	    }
+		
 	}
 
 	protected void guardarArchivoTxt() {

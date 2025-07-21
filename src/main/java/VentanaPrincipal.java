@@ -137,7 +137,7 @@ public class VentanaPrincipal {
 		
 		list_1 = new JComboBox();
 		list_1.setModel(new DefaultComboBoxModel(new String[] {"30", "35", "40", "45", "50", "55", "60", "65", "70", "75", "80", "85", "90", "95", "100", "110", "120", "130", "140"}));
-		list_1.setSelectedIndex(8);
+		list_1.setSelectedIndex(6);
 		toolBar.add(list_1);
 		
 		JSplitPane splitPane = new JSplitPane();
@@ -222,8 +222,14 @@ public class VentanaPrincipal {
 		btnExportar.setToolTipText("Exportar a un archivo *.srt");
 		toolBar_2.add(btnExportar);
 		toolBar_2.add(list_2);
-		
-		list_2.setModel(new DefaultComboBoxModel(new String[] {"UTF-8 \\n LinuxUNIX", "UTF-16 \\n LinuxUNIX", "UTF-8 \\r\\n Windows", "UTF-16 \\r\\n Windows"}));
+        //Charset	Description
+        //US-ASCII	Seven-bit ASCII, a.k.a. ISO646-US, a.k.a. the Basic Latin block of the Unicode character set
+        //ISO-8859-1  	ISO Latin Alphabet No. 1, a.k.a. ISO-LATIN-1
+        //UTF-8	Eight-bit UCS Transformation Format
+        //UTF-16BE	Sixteen-bit UCS Transformation Format, big-endian byte order
+        //UTF-16LE	Sixteen-bit UCS Transformation Format, little-endian byte order
+        //UTF-16	Sixteen-bit UCS Transformation Format, byte order identified by an optional byte-order mark
+		list_2.setModel(new DefaultComboBoxModel(new String[] {"ISO-8859-1", "UTF-8", "UTF-16"}));
 		
 		JPanel panel_2 = new JPanel();
 		panel_4.add(panel_2, BorderLayout.CENTER);
@@ -240,15 +246,14 @@ public class VentanaPrincipal {
 		
 		btnExportar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				String[] p = new String[3];
+				//String[] p = new String[3];
 				String s = list_2.getSelectedItem().toString();
-				p = s.split(" ");
-				int i = list_2.getSelectedIndex();
-				if(i==0) p[1]="\n";   //LinuxUNIX
-				if(i==1) p[1]="\n";   //LinuxUNIX
-				if(i==2) p[1]="\r\n"; //Windows
-				if(i==3) p[1]="\r\n"; //Windows
-				saveTextAreaToFile(textArea, p[0], p[1], p[2]);
+				//p = s.split(" ");
+				//int i = list_2.getSelectedIndex();
+				//if(i==0) p[1]="\n";   
+				//if(i==1) p[1]="\n";   
+				//if(i==2) p[1]="\n"; 
+				saveTextAreaToFile(textArea, s);
 			}
 		});
 		btnNewButton_2.addActionListener(new ActionListener() {
@@ -267,7 +272,7 @@ public class VentanaPrincipal {
 		txtrHolaEsteEs =   new JTextArea();
 		txtrHolaEsteEs.setLineWrap(true);
 		scrollPane_1.add(txtrHolaEsteEs);
-		txtrHolaEsteEs.setFont(new Font("Nimbus Mono PS", Font.PLAIN, 16));
+		txtrHolaEsteEs.setFont(new Font("Open Sans", Font.PLAIN, 16));
 		txtrHolaEsteEs.setText("Hola, procesando títulos \nEste es el segundo subtítulo, dividido en dos subtítulos.\nEste es el cuarto subtítulo.\n");
 		scrollPane_1.setViewportView(txtrHolaEsteEs);
 		
@@ -508,14 +513,14 @@ public class VentanaPrincipal {
 
 **/	
 	
-	public void saveTextAreaToFile(JTextArea textArea, String encoding, String lineSeparator, String lineSeparatorOS ) {
+	public void saveTextAreaToFile(JTextArea textArea, String encoding) {
         this.btnExportar.setEnabled(false);
 
         // Obtener el texto del JTextArea
         String text = textArea.getText();
 
         // Reemplazar los saltos de línea con el lineSeparator especificado
-        text = text.replace("\n", lineSeparator);
+        //text = text.replace("\n", lineSeparator);
 
         // Obtener la fecha y hora actual
         LocalDateTime now = LocalDateTime.now();
@@ -523,7 +528,7 @@ public class VentanaPrincipal {
         String formattedDateTime = now.format(formatter);
 
         // Crear el nombre del archivo
-        String fileName = "Subtítulos" + encoding + "" + lineSeparatorOS + "" + formattedDateTime + ".srt";
+        String fileName = "Subtítulos" + encoding + "" + "-" + "" + formattedDateTime + ".srt";
 
         // Guardar el contenido en el archivo con la codificación especificada
         //Charset	Description
@@ -533,7 +538,7 @@ public class VentanaPrincipal {
         //UTF-16BE	Sixteen-bit UCS Transformation Format, big-endian byte order
         //UTF-16LE	Sixteen-bit UCS Transformation Format, little-endian byte order
         //UTF-16	Sixteen-bit UCS Transformation Format, byte order identified by an optional byte-order mark
-        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("salida-srt/"+fileName), "ISO-8859-1"))) {
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("salida-srt/"+fileName), encoding))) {
             writer.write(text);
             JOptionPane.showMessageDialog(null, "El archivo de subtítulos se ha guardado como: " + 
                                                 fileName + "\n en: " + System.getProperty("user.dir") + "/salida-srt/");
@@ -545,12 +550,11 @@ public class VentanaPrincipal {
     }
 	
 	private void btnNewButton_2Clicked(ActionEvent e) {
-		// Verificar que haya texto seleccionado
-		if (textArea.getSelectedText() == null || textArea.getSelectedText().trim().isEmpty()) {
-			JOptionPane.showMessageDialog(null,
-					"Por favor, seleccioná uno o más bloques de subtítulos para convertir a voz.");
-			return;
-		}
+		String seleccion = textArea.getSelectedText();
+	    if (seleccion == null || seleccion.trim().isEmpty()) {
+	        JOptionPane.showMessageDialog(null, "Por favor, seleccioná uno o más bloques de subtítulos para convertir.");
+	        return;
+	    }
 		// Verificar que haya un intérprete de Python instalado
 		try {
 			ProcessBuilder pb = new ProcessBuilder("python3", "--version");
@@ -570,28 +574,18 @@ public class VentanaPrincipal {
 		File salidaWavDir = new File("salida-wav"); // Ruta relativa al directorio actual
 		if (!salidaWavDir.exists()) { //Verifica si la carpeta no existe
 			salidaWavDir.mkdir(); // Crea la carpeta
-		} else {
+		} //#else {
 			// Copilot, si existe, eliminar todos los archivos dentro de la carpeta
 			// salida-wav
-			File[] files = salidaWavDir.listFiles();
-			if (files != null) {
-				for (File file : files) {
-					if (file.isFile()) {
-						file.delete(); // Elimina el archivo
-					}
-				}
-			}
-		}
-
-		
-		// Obtener el texto seleccionado
-
-		String seleccion = textArea.getSelectedText();
-
-	    if (seleccion == null || seleccion.trim().isEmpty()) {
-	        JOptionPane.showMessageDialog(null, "Por favor, seleccioná uno o más bloques de subtítulos para convertir.");
-	        return;
-	    }
+			//#File[] files = salidaWavDir.listFiles();
+			//#if (files != null) {
+			//#	for (File file : files) {
+			//#		if (file.isFile()) {
+			//#			file.delete(); // Elimina el archivo
+			//#		}
+			//#}
+			//#}
+		//#}
 
 	    // Separar bloques por línea en blanco
 	    String[] bloques = seleccion.trim().split("\\n\\s*\\n");
@@ -672,8 +666,8 @@ public class VentanaPrincipal {
 	            p1.destroy(); // Liberar el objeto Process
 	            pb1 = null; // Liberar el objeto ProcessBuilder
 	            
-	            //Copilot, ejecutar sleep() durante un segundo para colaborar con otros procesos del sistema operativo antes de normalizar el archivo de audio.
-	            Thread.sleep(1000); // Esperar 1 segundo para evitar problemas de acceso al archivo
+	            //Copilot, ejecutar sleep() durante para colaborar con otros procesos del sistema operativo antes de normalizar el archivo de audio.
+	            Thread.sleep(500); // Esperar 1/2 segundo para evitar problemas de acceso al archivo
 	            
 	            // -------------------------------
 	            // Ejecutar normalizar_volume.py

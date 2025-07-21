@@ -1,23 +1,6 @@
-#import sys
-#from TTS.api import TTS
-#import soundfile as sf
-
-## Texto desde la línea de comandos
-#text = sys.argv[1] if len(sys.argv) > 1 else "Este es un texto de prueba. Texto por defecto."
-
-## Cargar modelo de español
-#model_name = "tts_models/es/css10/vits"
-#tts = TTS(model_name)
-
-## Generar audio
-#wav = tts.tts(text)
-
-## Guardar resultado
-#sf.write("salida-wav/coqui_output.wav", wav, samplerate=22050)
-#print("✅ Audio generado en: salida-wav/coqui_output.wav ")
-
 import sys
 from TTS.api import TTS
+import librosa
 import soundfile as sf
 import os
 
@@ -39,6 +22,9 @@ tts = TTS(model_name)
 
 # Generar audio
 wav = tts.tts(text)
+
+# Convertir el audio a 44100 Hz
+#wav_44100 = librosa.resample(wav, orig_sr=22050, target_sr=44100)
 
 # Guardar
 sf.write(ruta_salida, wav, samplerate=22050)

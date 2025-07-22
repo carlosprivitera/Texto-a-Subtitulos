@@ -53,7 +53,7 @@ def generar_imagen(prompt, height, width, guidance_scale, num_steps, output_file
     )
     pipe.to("cpu")
 
-    print(f"🖼️ Generando imagen con resolución {width}x{height} guidance_scale={guidance_scale} num_inference_steps={num_inference_steps}\n")
+    print(f"🖼️ Generando imagen con resolución {width}x{height} guidance_scale={guidance_scale} num_inference_steps={num_steps}\n")
     image = pipe(prompt, height=height, width=width,
                  guidance_scale=guidance_scale,
                  num_inference_steps=num_steps).images[0]

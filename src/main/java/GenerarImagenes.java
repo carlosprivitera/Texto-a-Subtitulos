@@ -18,27 +18,40 @@ import javax.swing.JSlider;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeListener;
+
 import javax.swing.event.ChangeEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.awt.event.ActionEvent;
+import javax.swing.JScrollPane;
+import java.awt.Dimension;
 
 public class GenerarImagenes extends JDialog {
 
 	private static final long serialVersionUID = 1L;
 	private final JPanel contentPanel = new JPanel();
 	private JLabel lblNewLabel;
-	private JSlider slider_1;
-	private JSlider slider_3;
-	private JSlider slider_4;
-	private JSlider slider_5;
+	private JSlider slider_ancho;
+	private JSlider slider_alto;
+	private JSlider slider_escala;
+	private JSlider slider_pasos;
 	private JLabel lblAlto;
 	private JLabel lblDetalles;
 	private JLabel lblCalidad;
 	private JTextArea txtPrompt;
 	private JTextArea consoleArea;
+
+	private Process process;
+
+	private Thread hiloGenerarImagen = null;
+	private JButton btnNewButton = null;
+	private JButton btnGenerarImagen;
+	private JScrollPane scrollPane;
+	private JScrollPane scrollPane_1;
 
 	/**
 	 * Launch the application.
@@ -57,6 +70,7 @@ public class GenerarImagenes extends JDialog {
 	 * Create the dialog.
 	 */
 	public GenerarImagenes() {
+		setModal(true);
 		setTitle("Generador de Imágenes");
 		setBounds(100, 100, 700, 565);
 		getContentPane().setLayout(new BorderLayout());
@@ -69,113 +83,121 @@ public class GenerarImagenes extends JDialog {
 			contentPanel.add(splitPane);
 			{
 				JPanel panel = new JPanel();
+				panel.setAutoscrolls(true);
 				splitPane.setLeftComponent(panel);
-				panel.setLayout(new GridLayout(12, 1, 0, 0));
+				panel.setLayout(new GridLayout(11, 1, 0, 0));
 				{
 					JLabel lblPrompt = new JLabel("Prompt");
 					lblPrompt.setHorizontalAlignment(SwingConstants.CENTER);
 					panel.add(lblPrompt);
 				}
 				{
-					txtPrompt = new JTextArea();
-					txtPrompt.setRows(4);
-					txtPrompt.setText(
-							"Crear una imágen realista de una oficina donde un grupo de desarrolladores de software planifican un producto software en un tablero KanBan.");
-					txtPrompt.setLineWrap(true);
-					panel.add(txtPrompt);
+					scrollPane_1 = new JScrollPane();
+					panel.add(scrollPane_1);
+					{
+						txtPrompt = new JTextArea();
+						scrollPane_1.setViewportView(txtPrompt);
+						txtPrompt.setRows(8);
+						txtPrompt.setText(
+								"Crear una imágen realista de una oficina donde un grupo de desarrolladores de software planifican un producto software en un tablero KanBan.");
+						txtPrompt.setLineWrap(true);
+					}
 				}
 				{
 					lblNewLabel = new JLabel("Ancho");
 					panel.add(lblNewLabel);
 				}
 				{
-					slider_1 = new JSlider();
-					slider_1.setMajorTickSpacing(128);
-					slider_1.setMinorTickSpacing(64);
-					slider_1.setPaintTicks(true);
-					slider_1.addChangeListener(new ChangeListener() {
+					slider_ancho = new JSlider();
+					slider_ancho.setMajorTickSpacing(128);
+					slider_ancho.setMinorTickSpacing(64);
+					slider_ancho.setPaintTicks(true);
+					slider_ancho.addChangeListener(new ChangeListener() {
 						public void stateChanged(ChangeEvent e) {
-							lblNewLabel.setText("Ancho: " + slider_1.getValue() + " px");
+							lblNewLabel.setText("Ancho: " + slider_ancho.getValue() + " px");
 						}
 					});
 
-					slider_1.setValue(1920);
-					slider_1.setMaximum(1920);
-					slider_1.setMinimum(512);
-					panel.add(slider_1);
+					slider_ancho.setValue(1920);
+					slider_ancho.setMaximum(1920);
+					slider_ancho.setMinimum(512);
+					panel.add(slider_ancho);
 				}
 				{
 					lblAlto = new JLabel("Alto");
 					panel.add(lblAlto);
 				}
 				{
-					slider_3 = new JSlider();
-					slider_3.addChangeListener(new ChangeListener() {
+					slider_alto = new JSlider();
+					slider_alto.addChangeListener(new ChangeListener() {
 						public void stateChanged(ChangeEvent e) {
-							lblAlto.setText("Alto: " + slider_3.getValue() + " px");
+							lblAlto.setText("Alto: " + slider_alto.getValue() + " px");
 						}
 					});
-					slider_3.setValue(1080);
-					slider_3.setMajorTickSpacing(64);
-					slider_3.setMinorTickSpacing(32);
-					slider_3.setMaximum(1080);
-					slider_3.setMinimum(512);
-					slider_3.setPaintTicks(true);
-					panel.add(slider_3);
+					slider_alto.setValue(1080);
+					slider_alto.setMajorTickSpacing(64);
+					slider_alto.setMinorTickSpacing(32);
+					slider_alto.setMaximum(1080);
+					slider_alto.setMinimum(512);
+					slider_alto.setPaintTicks(true);
+					panel.add(slider_alto);
 				}
 				{
 					lblDetalles = new JLabel("Detalles");
 					panel.add(lblDetalles);
 				}
 				{
-					slider_4 = new JSlider();
-					slider_4.addChangeListener(new ChangeListener() {
+					slider_escala = new JSlider();
+					slider_escala.addChangeListener(new ChangeListener() {
 						public void stateChanged(ChangeEvent e) {
-							lblDetalles.setText("Detalles: " + slider_4.getValue());
+							lblDetalles.setText("Detalles: " + slider_escala.getValue());
 						}
 					});
-					slider_4.setValue(7);
-					slider_4.setMinorTickSpacing(2);
-					slider_4.setMinimum(1);
-					slider_4.setMaximum(20);
-					slider_4.setMajorTickSpacing(4);
-					slider_4.setPaintTicks(true);
-					panel.add(slider_4);
+					slider_escala.setValue(7);
+					slider_escala.setMinorTickSpacing(2);
+					slider_escala.setMinimum(1);
+					slider_escala.setMaximum(20);
+					slider_escala.setMajorTickSpacing(4);
+					slider_escala.setPaintTicks(true);
+					panel.add(slider_escala);
 				}
 				{
 					lblCalidad = new JLabel("Calidad");
 					panel.add(lblCalidad);
 				}
 				{
-					slider_5 = new JSlider();
-					slider_5.addChangeListener(new ChangeListener() {
+					slider_pasos = new JSlider();
+					slider_pasos.addChangeListener(new ChangeListener() {
 						public void stateChanged(ChangeEvent e) {
-							lblCalidad.setText("Calidad: " + slider_5.getValue() + "%");
+							lblCalidad.setText("Calidad: " + slider_pasos.getValue() + "%");
 						}
 					});
-					slider_5.setValue(40);
-					slider_5.setMajorTickSpacing(10);
-					slider_5.setMinorTickSpacing(5);
-					slider_5.setMinimum(10);
-					slider_5.setPaintTicks(true);
-					panel.add(slider_5);
+					slider_pasos.setValue(40);
+					slider_pasos.setMajorTickSpacing(10);
+					slider_pasos.setMinorTickSpacing(5);
+					slider_pasos.setMinimum(10);
+					slider_pasos.setPaintTicks(true);
+					panel.add(slider_pasos);
 				}
 				{
-					JLabel lblSalida = new JLabel("Salida");
-					lblSalida.setHorizontalAlignment(SwingConstants.CENTER);
-					panel.add(lblSalida);
-				}
-				{
-					consoleArea = new JTextArea();
-					consoleArea.setRows(6);
-					panel.add(consoleArea);
+					scrollPane = new JScrollPane();
+					scrollPane.setSize(new Dimension(0, 100));
+					scrollPane.setPreferredSize(new Dimension(3, 100));
+					scrollPane.setMinimumSize(new Dimension(22, 100));
+					panel.add(scrollPane);
+					{
+						consoleArea = new JTextArea();
+						consoleArea.setLineWrap(true);
+						scrollPane.setViewportView(consoleArea);
+						consoleArea.setRows(12);
+					}
 				}
 			}
 			{
 				JPanel panel = new JPanel();
 				splitPane.setRightComponent(panel);
 			}
-			splitPane.setDividerLocation(200);
+			splitPane.setDividerLocation(250);
 		}
 		{
 			JPanel buttonPane = new JPanel();
@@ -190,16 +212,21 @@ public class GenerarImagenes extends JDialog {
 			JToolBar toolBar = new JToolBar();
 			getContentPane().add(toolBar, BorderLayout.NORTH);
 			{
-				JButton btnNewButton = new JButton("Generar Imagen");
-				btnNewButton.addActionListener(new ActionListener() {
+				btnGenerarImagen = new JButton("Generar Imagen");
+				btnGenerarImagen.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						generarImagenHilo();
 					}
 				});
-				toolBar.add(btnNewButton);
+				toolBar.add(btnGenerarImagen);
 			}
 			{
 				JButton btnPararProceso = new JButton("Parar proceso");
+				btnPararProceso.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						detenerGeneracionImagen();
+					}
+				});
 				toolBar.add(btnPararProceso);
 			}
 		}
@@ -207,73 +234,107 @@ public class GenerarImagenes extends JDialog {
 	}
 
 	private void miIniciar() {
-		slider_1.setValue(1920);
-		slider_3.setValue(1080);
-		slider_4.setValue(7);
-		slider_5.setValue(40);
+		slider_ancho.setValue(1920);
+		slider_alto.setValue(1080);
+		slider_escala.setValue(7);
+		slider_pasos.setValue(40);
 
 	}
-    
-	private Thread hiloGenerarImagen;
+
 	private void generarImagenHilo() {
+		String prompt = txtPrompt.getText();
 
-		 String prompt = txtPrompt.getText();
-			if (prompt == null || prompt.trim().isEmpty()) {
-				consoleArea.append("⚠️ El campo de prompt está vacío.\n");
-				return;
+		if (prompt == null || prompt.trim().isEmpty()) {
+			consoleArea.append("⚠️ El campo de prompt está vacío.\n");
+			return;
+		}
+
+		consoleArea.setText(""); // Limpiar consola
+		consoleArea.append("🔄 Generando imagen...\n");
+
+		// Leer parámetros desde sliders
+		String height = String.valueOf(slider_alto.getValue()); // 512 - 1080
+		String width = String.valueOf(slider_ancho.getValue()); // 512 - 1920
+		String scale = String.valueOf(slider_escala.getValue()); // 1 - 20
+		String steps = String.valueOf(slider_pasos.getValue()); // 10 - 100
+
+		// Generar nombre de archivo con timestamp
+		String timestamp = new java.text.SimpleDateFormat("yyyy_MM_dd_HH_mm_ss").format(new java.util.Date());
+		String nombreSalida = "salida-imagenes/imagen_" + timestamp + ".png";
+
+		// Ruta al ejecutable Python del entorno virtual
+		String pythonVenv = "python/sd-venv/bin/python3"; // adaptá si usás Windows o rutas absolutas
+
+		// Construir proceso
+		List<String> comando = new ArrayList<>();
+		comando.add(pythonVenv);
+		comando.add("src-python/generar_imagen_sdxl.py");
+		comando.add(prompt);
+		comando.add(height);
+		comando.add(width);
+		comando.add(scale);
+		comando.add(steps);
+		comando.add(nombreSalida);
+
+		hiloGenerarImagen = new Thread(() -> {
+			btnGenerarImagen.setEnabled(false);
+			try {
+				ProcessBuilder pb = new ProcessBuilder(comando);
+
+				pb.directory(new File(".")); // directorio raíz del proyecto
+				pb.redirectErrorStream(true);
+				process = pb.start(); // Esto inicia el proceso
+
+				// Leer salida del proceso
+				try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+					String line;
+					while ((line = reader.readLine()) != null) {
+						final String finalLine = line;
+						SwingUtilities.invokeLater(() -> {
+							consoleArea.append(finalLine + "\n");
+							consoleArea.setCaretPosition(consoleArea.getDocument().getLength());
+						});
+					}
+				}
+
+				int exitCode = process.waitFor();
+				SwingUtilities.invokeLater(() -> {
+					if (exitCode == 0) {
+						consoleArea.append("✅ Imagen generada: " + nombreSalida + "\n");
+					} else {
+						consoleArea.append("❌ Error al generar imagen. Código: " + exitCode + "\n");
+					}
+				});
+
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				SwingUtilities.invokeLater(() -> {
+					consoleArea.append("⚠️ Error al generar imagen: " + ex.getMessage() + "\n");
+				});
+			} finally {
+				btnGenerarImagen.setEnabled(true);
 			}
-		    if (prompt == null || prompt.trim().isEmpty()) return;
+		});
 
-		    // Parámetros opcionales (pueden venir de otros componentes)
-		    String height = "1080";
-		    String width = "1920";
-		    String scale = "7.5";
-		    String steps = "40";
-		    String nombreSalida = "imagen_generada.png";
+		hiloGenerarImagen.start();
+	}
 
-		    String comando = String.format(
-		        "python3 src-python/generar_imagen_sdxl.py \"%s\" %s %s %s %s %s",
-		        prompt.replace("\"", "\\\""),
-		        height, width, scale, steps, nombreSalida
-		    );
-
-		    hiloGenerarImagen = new Thread(() -> {
-		        try {
-		            ProcessBuilder pb = new ProcessBuilder("bash", "-c", comando);
-		            pb.directory(new File("salida-imagenes"));
-		            pb.redirectErrorStream(true);
-		            Process process = pb.start();
-
-		            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-		                String line;
-		                while ((line = reader.readLine()) != null) {
-		                    String finalLine = line;
-		                    SwingUtilities.invokeLater(() -> {
-		                        consoleArea.append(finalLine + "\n");
-		                        consoleArea.setCaretPosition(consoleArea.getDocument().getLength());
-		                    });
-		                }
-		            }
-
-		            int exitCode = process.waitFor();
-		            SwingUtilities.invokeLater(() -> {
-		                if (exitCode == 0) {
-		                    consoleArea.append("✅ Imagen generada exitosamente.\n");
-		                } else {
-		                    consoleArea.append("❌ Error al generar imagen. Código: " + exitCode + "\n");
-		                }
-		            });
-
-		        } catch (Exception ex) {
-		            ex.printStackTrace();
-		            SwingUtilities.invokeLater(() -> {
-		                consoleArea.append("⚠️ Error al generar imagen: " + ex.getMessage() + "\n");
-		            });
-		        }
-		    });
-
-		    hiloGenerarImagen.start();
-	   
-		
+	private void detenerGeneracionImagen() {
+		if (process != null && process.isAlive()) {
+			try {
+				process.destroy(); // O destroyForcibly() si no responde
+				Thread.sleep(5000); // Esperar un poco para que el proceso se detenga
+				if (process.isAlive()) {
+					consoleArea.append("⚠️ El proceso no respondió, forzando detención...\n");
+					process.destroyForcibly();
+				}
+			} catch (Exception e) {
+				consoleArea.append("🛑 El proceso dio un error al intentar detenerlo. Error=" + e.getMessage() + "\n");
+			}
+			consoleArea.append("🛑 Proceso detenido por el usuario.\n");
+			btnGenerarImagen.setEnabled(true);
+		} else {
+			consoleArea.append("⚠️ No hay proceso de generación de imagen en ejecución para detener.\n");
+		}
 	}
 }

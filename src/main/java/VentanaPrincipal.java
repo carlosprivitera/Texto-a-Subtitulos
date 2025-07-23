@@ -293,6 +293,11 @@ public class VentanaPrincipal {
 
 	protected void btnGenerarImagenClicked(ActionEvent e) {
 		// TODO Auto-generated method stub
+		//Copilot, llamar a la ventana JDialog llamada GenerarImagenes
+		GenerarImagenes generarImagenes = new GenerarImagenes();
+		generarImagenes.setVisible(true);
+		
+		/**
 	    try {
 	        String directorioImagenes = directorioRaizProyectoJava + "/salida-imagenes";
 	        String prompt = JOptionPane.showInputDialog("Ingresar el texto para generar la imagen en " + directorioImagenes + ":");
@@ -324,7 +329,7 @@ public class VentanaPrincipal {
 	        ex.printStackTrace();
 	        JOptionPane.showMessageDialog(null, "⚠️ Ocurrió un error: " + ex.getMessage());
 	    }
-		
+		*/
 	}
 
 	protected void guardarArchivoTxt() {

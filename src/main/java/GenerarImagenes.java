@@ -1,7 +1,9 @@
 package main.java;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
+import java.awt.Graphics;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -13,6 +15,7 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 import java.awt.GridLayout;
 import javax.swing.JTextArea;
+import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
 import javax.swing.JSlider;
 import javax.swing.SwingConstants;
@@ -21,14 +24,17 @@ import javax.swing.event.ChangeListener;
 
 import javax.swing.event.ChangeEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.awt.event.ActionEvent;
 import javax.swing.JScrollPane;
 import java.awt.Dimension;
+import java.awt.Font;
 
 public class GenerarImagenes extends JDialog {
 
@@ -52,6 +58,10 @@ public class GenerarImagenes extends JDialog {
 	private JButton btnGenerarImagen;
 	private JScrollPane scrollPane;
 	private JScrollPane scrollPane_1;
+	private JSplitPane splitPane_1;
+	private JPanel panel_1;
+	private JPanel panel_2;
+	private JPanel panel_VistaImagen;
 
 	/**
 	 * Launch the application.
@@ -86,23 +96,6 @@ public class GenerarImagenes extends JDialog {
 				panel.setAutoscrolls(true);
 				splitPane.setLeftComponent(panel);
 				panel.setLayout(new GridLayout(11, 1, 0, 0));
-				{
-					JLabel lblPrompt = new JLabel("Prompt");
-					lblPrompt.setHorizontalAlignment(SwingConstants.CENTER);
-					panel.add(lblPrompt);
-				}
-				{
-					scrollPane_1 = new JScrollPane();
-					panel.add(scrollPane_1);
-					{
-						txtPrompt = new JTextArea();
-						scrollPane_1.setViewportView(txtPrompt);
-						txtPrompt.setRows(8);
-						txtPrompt.setText(
-								"Crear una imágen realista de una oficina donde un grupo de desarrolladores de software planifican un producto software en un tablero KanBan.");
-						txtPrompt.setLineWrap(true);
-					}
-				}
 				{
 					lblNewLabel = new JLabel("Ancho");
 					panel.add(lblNewLabel);
@@ -179,23 +172,66 @@ public class GenerarImagenes extends JDialog {
 					slider_pasos.setPaintTicks(true);
 					panel.add(slider_pasos);
 				}
-				{
-					scrollPane = new JScrollPane();
-					scrollPane.setSize(new Dimension(0, 100));
-					scrollPane.setPreferredSize(new Dimension(3, 100));
-					scrollPane.setMinimumSize(new Dimension(22, 100));
-					panel.add(scrollPane);
-					{
-						consoleArea = new JTextArea();
-						consoleArea.setLineWrap(true);
-						scrollPane.setViewportView(consoleArea);
-						consoleArea.setRows(12);
-					}
-				}
 			}
 			{
 				JPanel panel = new JPanel();
 				splitPane.setRightComponent(panel);
+				panel.setLayout(new BorderLayout(0, 0));
+				{
+					splitPane_1 = new JSplitPane();
+					splitPane_1.setOrientation(JSplitPane.VERTICAL_SPLIT);
+					panel.add(splitPane_1, BorderLayout.NORTH);
+					{
+						panel_1 = new JPanel();
+						splitPane_1.setLeftComponent(panel_1);
+						panel_1.setLayout(new BorderLayout(0, 0));
+						{
+							scrollPane_1 = new JScrollPane();
+							panel_1.add(scrollPane_1);
+							{
+								txtPrompt = new JTextArea();
+								txtPrompt.setFont(new Font("Open Sans Semibold", Font.PLAIN, 14));
+								scrollPane_1.setViewportView(txtPrompt);
+								txtPrompt.setRows(8);
+								txtPrompt.setText("Imagen ultra realista de una oficina moderna con ventanales grandes, "
+										+ "muy iluminada por luz natural. Hay muchas plantas decorativas. "
+										+ "Dos escritorios bien organizados: en uno hay un cactus florecido, "
+										+ "en el otro una taza de café humeante. Una persona sonriente "
+										+ "y feliz que trabaja frente a una computadora. "
+										+ "A su lado, un robot elegante con traje rojo brillante, de aspecto profesional.");
+								txtPrompt.setLineWrap(true);
+							}
+						}
+						{
+							JLabel lblPrompt = new JLabel("Prompt y salida del proceso de generación.");
+							panel_1.add(lblPrompt, BorderLayout.NORTH);
+							lblPrompt.setHorizontalAlignment(SwingConstants.CENTER);
+						}
+					}
+					{
+						panel_2 = new JPanel();
+						splitPane_1.setRightComponent(panel_2);
+						panel_2.setLayout(new BorderLayout(0, 0));
+						{
+							scrollPane = new JScrollPane();
+							panel_2.add(scrollPane);
+							scrollPane.setSize(new Dimension(0, 100));
+							scrollPane.setPreferredSize(new Dimension(3, 100));
+							scrollPane.setMinimumSize(new Dimension(22, 100));
+							{
+								consoleArea = new JTextArea();
+								consoleArea.setLineWrap(true);
+								scrollPane.setViewportView(consoleArea);
+								consoleArea.setRows(12);
+							}
+						}
+					}
+				}
+				{
+					panel_VistaImagen = new JPanel();
+					panel.add(panel_VistaImagen);
+					panel_VistaImagen.setLayout(new BorderLayout(0, 0));
+				}
 			}
 			splitPane.setDividerLocation(250);
 		}
@@ -301,6 +337,8 @@ public class GenerarImagenes extends JDialog {
 				SwingUtilities.invokeLater(() -> {
 					if (exitCode == 0) {
 						consoleArea.append("✅ Imagen generada: " + nombreSalida + "\n");
+						// Mostrar imagen en el panel
+					    mostrarImagenEnPanel(nombreSalida, panel_VistaImagen);
 					} else {
 						consoleArea.append("❌ Error al generar imagen. Código: " + exitCode + "\n");
 					}
@@ -337,4 +375,54 @@ public class GenerarImagenes extends JDialog {
 			consoleArea.append("⚠️ No hay proceso de generación de imagen en ejecución para detener.\n");
 		}
 	}
+	
+	
+	private void mostrarImagenEnPanel(String rutaImagen, JPanel panel) {
+	    try {
+	        BufferedImage imagen = ImageIO.read(new File(rutaImagen));
+	        ImagenEscalable imagenPanel = new ImagenEscalable(imagen);
+
+	        panel.removeAll();
+	        panel.setLayout(new BorderLayout());
+	        panel.add(imagenPanel, BorderLayout.CENTER);
+	        panel.revalidate();
+	        panel.repaint();
+	    } catch (IOException e) {
+	        consoleArea.append("❌ Error IO al cargar imagen para mostrar: " + e.getMessage() + "\n");
+		} catch (Exception e) {
+			consoleArea.append("❌ Error no determinado al mostrar imagen: " + e.getMessage() + "\n");
+		}
+	}
+	
+	class ImagenEscalable extends JPanel {
+	    private BufferedImage imagen;
+
+	    public ImagenEscalable(BufferedImage img) {
+	        this.imagen = img;
+	        this.setBackground(Color.BLACK); // Fondo si la imagen no cubre todo
+	    }
+
+	    @Override
+	    protected void paintComponent(Graphics g) {
+	        super.paintComponent(g);
+	        if (imagen != null) {
+	            int panelWidth = getWidth();
+	            int panelHeight = getHeight();
+
+	            // Escalado proporcional
+	            double escalaX = (double) panelWidth / imagen.getWidth();
+	            double escalaY = (double) panelHeight / imagen.getHeight();
+	            double escala = Math.min(escalaX, escalaY);
+
+	            int ancho = (int) (imagen.getWidth() * escala);
+	            int alto = (int) (imagen.getHeight() * escala);
+
+	            int x = (panelWidth - ancho) / 2;
+	            int y = (panelHeight - alto) / 2;
+
+	            g.drawImage(imagen, x, y, ancho, alto, this);
+	        }
+	    }
+	}
+	
 }

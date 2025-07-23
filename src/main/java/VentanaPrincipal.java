@@ -71,6 +71,8 @@ public class VentanaPrincipal {
 					window = new VentanaPrincipal();
 					currentDirectory = System.getProperty("user.dir");
                     window.frmTextoASubttulos.setTitle(currentDirectory);
+                    //Copilot, centrar la ventana en la pantalla
+                    window.frmTextoASubttulos.setLocationRelativeTo(null);
 					window.frmTextoASubttulos.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -293,8 +295,10 @@ public class VentanaPrincipal {
 
 	protected void btnGenerarImagenClicked(ActionEvent e) {
 		// TODO Auto-generated method stub
-		//Copilot, llamar a la ventana JDialog llamada GenerarImagenes
+		//Copilot, llamar a la ventana JDialog con el nombre de GenerarImagenes
 		GenerarImagenes generarImagenes = new GenerarImagenes();
+		//Copilot, que la ventana esté centrada en la pantalla
+		generarImagenes.setLocationRelativeTo(frmTextoASubttulos);
 		generarImagenes.setVisible(true);
 		
 		/**

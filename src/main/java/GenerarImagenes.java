@@ -51,9 +51,9 @@ public class GenerarImagenes extends JDialog {
 	private JTextArea txtPrompt;
 	private JTextArea consoleArea;
 
-	private Process process;
+	//private Process process;
 
-	private Thread hiloGenerarImagen = null;
+	//private Thread hiloGenerarImagen = null;
 	private JButton btnNewButton = null;
 	private JButton btnGenerarImagen;
 	private JScrollPane scrollPane;
@@ -62,6 +62,7 @@ public class GenerarImagenes extends JDialog {
 	private JPanel panel_1;
 	private JPanel panel_2;
 	private JPanel panel_VistaImagen;
+	private JButton btnNewButton_1;
 
 	/**
 	 * Launch the application.
@@ -193,9 +194,13 @@ public class GenerarImagenes extends JDialog {
 								txtPrompt.setFont(new Font("Open Sans Semibold", Font.PLAIN, 14));
 								scrollPane_1.setViewportView(txtPrompt);
 								txtPrompt.setRows(8);
-								txtPrompt.setText("Imagen ultra realista de una oficina de trabajo moderna con ventanales grandes, "
-										+ "muy iluminada con luz natural. Hay muchas plantas decorativas y el scritorio de trabajo bien organizado. "
-										+ "Está trabajando un moderno Robot en una computadora y tomando una taza de café caliente.");
+								txtPrompt.setText("Imagen ultra realista de una oficina muy grande, con plantas decorativas, muy iluminada con luz natural. "
+										+ "El scritorio está muy bien organizado con lápices, agenda y teclado de computadoras. "
+										+ "Hay un Robot humanoide muy pensativo tomando una taza de café caliente."
+										+ "\n\n"
+										+ "Un programador de computaora muy contento está trabajando en su computadora, "
+										+ "en la pared de la oficina hay un poster de una película de ciencia ficción."
+										+ "\n\n");
 								txtPrompt.setLineWrap(true);
 							}
 						}
@@ -257,23 +262,51 @@ public class GenerarImagenes extends JDialog {
 				JButton btnPararProceso = new JButton("Parar proceso");
 				btnPararProceso.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						detenerGeneracionImagen();
+						try {
+						   hiloGenerarImagen.detenerGeneracionImagen(consoleArea);
+						} catch (Exception ex) {
+							consoleArea.append("❌ Error no esperado al detener el proceso: " + ex.getMessage() + "\n");
+						}
 					}
 				});
 				toolBar.add(btnPararProceso);
+			}
+			{
+				btnNewButton_1 = new JButton("Explorar carpetas de imágenes ");
+				btnNewButton_1.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						try {
+							// Abrir el explorador de archivos en la carpeta de salida
+							File carpetaSalida = new File("salida-imagenes");
+							if (carpetaSalida.exists() && carpetaSalida.isDirectory()) {
+								if (java.awt.Desktop.isDesktopSupported()) {
+									java.awt.Desktop.getDesktop().open(carpetaSalida);
+								} else {
+									consoleArea.append("⚠️ No se puede abrir el explorador de archivos.\n");
+								}
+							} else {
+								consoleArea.append("⚠️ La carpeta de salida no existe.\n");
+							}
+						} catch (IOException ex) {
+							consoleArea.append("❌ Error al abrir la carpeta: " + ex.getMessage() + "\n");
+						}
+					}
+				});
+				toolBar.add(btnNewButton_1);
 			}
 		}
 		miIniciar();
 	}
 
 	private void miIniciar() {
-		slider_ancho.setValue(1920);
-		slider_alto.setValue(1080);
-		slider_escala.setValue(12);
-		slider_pasos.setValue(40);
+		slider_ancho.setValue(512);
+		slider_alto.setValue(512);
+		slider_escala.setValue(19);
+		slider_pasos.setValue(70);
 
 	}
-
+    
+	GenerarImagenesHilo hiloGenerarImagen = null;
 	private void generarImagenHilo() {
 		String prompt = txtPrompt.getText();
 
@@ -283,7 +316,34 @@ public class GenerarImagenes extends JDialog {
 		}
 
 		consoleArea.setText(""); // Limpiar consola
-		consoleArea.append("🔄 Generando imagen...\n");
+		consoleArea.append("🔄 Generando las imagenes de todos los prompt...\n");
+
+		//Copilot, divide prompt en un array de párrafos, los parrafos estan separados por saltos de línea
+		String[] parrafos = prompt.split("\n");
+		//Recorrer el array de párrafos en un bucle for
+		//StringBuilder promptBuilder = new StringBuilder();
+		int contador = 0;
+		for (String parrafo : parrafos) {
+			if (!parrafo.trim().isEmpty()) { // Ignorar líneas vacías
+				//promptBuilder.append(parrafo.trim()).append(" "); //esta
+				consoleArea.append("🔄 Procesando prompt número = " + contador + "\n");
+				boolean activo = hiloGenerarImagen.isHiloGenerarImagenActivo();
+				if (activo) {
+					procesarParrafo(parrafo);
+					contador++;
+				}else {
+				   //Copilot: esperar 2 segundos antes de procesar el siguiente párrafo
+					try {
+						Thread.sleep(2000); // Esperar 2 segundos
+					} catch (InterruptedException e) {
+						
+					}
+				}
+			}
+		}
+	}
+    
+	private void procesarParrafo(String prompt) {
 
 		// Leer parámetros desde sliders
 		String height = String.valueOf(slider_alto.getValue()); // 512 - 1080
@@ -291,6 +351,7 @@ public class GenerarImagenes extends JDialog {
 		String scale = String.valueOf(slider_escala.getValue()); // 1 - 20
 		String steps = String.valueOf(slider_pasos.getValue()); // 10 - 100
 
+		
 		// Generar nombre de archivo con timestamp
 		String timestamp = new java.text.SimpleDateFormat("yyyy_MM_dd_HH_mm_ss").format(new java.util.Date());
 		String nombreSalida = "salida-imagenes/imagen_" + timestamp + ".png";
@@ -298,7 +359,8 @@ public class GenerarImagenes extends JDialog {
 		// Ruta al ejecutable Python del entorno virtual
 		String pythonVenv = "python/sd-venv/bin/python3"; // adaptá si usás Windows o rutas absolutas
 
-		String negative_prompt = "blurry, deformed, cartoon, low resolution, watermark";
+		String negative_prompt = "borroso, deformado, caricatura, baja resolución, marca de agua, texto, "
+				+ "error de anatomía, error de perspectiva, error de iluminación, error de color";
 		// Construir proceso
 		List<String> comando = new ArrayList<>();
 		comando.add(pythonVenv);
@@ -310,126 +372,11 @@ public class GenerarImagenes extends JDialog {
 		comando.add(scale);
 		comando.add(steps);
 		comando.add(nombreSalida);
+        
+		hiloGenerarImagen = new GenerarImagenesHilo();
+		
+		hiloGenerarImagen.iniciarGeneracionImagen(comando, nombreSalida, consoleArea, panel_VistaImagen);
 
-		hiloGenerarImagen = new Thread(() -> {
-			btnGenerarImagen.setEnabled(false);
-			try {
-				ProcessBuilder pb = new ProcessBuilder(comando);
-
-				pb.directory(new File(".")); // directorio raíz del proyecto
-				pb.redirectErrorStream(true);
-				process = pb.start(); // Esto inicia el proceso
-
-				// Leer salida del proceso
-				try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-					String line;
-					while ((line = reader.readLine()) != null) {
-						final String finalLine = line;
-						SwingUtilities.invokeLater(() -> {
-							//Copilot, no quiero que se agregue un salto de línea si la línea empieza con un número, debe sobrescribir la línea anterior 
-							if (finalLine.matches("^\\d.*")) {
-								// Si la línea empieza con un número, sobrescribir la línea anterior
-								consoleArea.setText(consoleArea.getText().replaceFirst("(?m)^.*$", finalLine));
-							} else {
-								// Si no, agregar una nueva línea
-								consoleArea.append(finalLine + "\n");
-							}
-							//consoleArea.append(finalLine + "\n");
-							consoleArea.setCaretPosition(consoleArea.getDocument().getLength());
-						});
-					}
-				}
-
-				int exitCode = process.waitFor();
-				SwingUtilities.invokeLater(() -> {
-					if (exitCode == 0) {
-						consoleArea.append("✅ Imagen generada: " + nombreSalida + "\n");
-						// Mostrar imagen en el panel
-					    mostrarImagenEnPanel(nombreSalida, panel_VistaImagen);
-					} else {
-						consoleArea.append("❌ Error al generar imagen. Código: " + exitCode + "\n");
-					}
-				});
-
-			} catch (Exception ex) {
-				ex.printStackTrace();
-				SwingUtilities.invokeLater(() -> {
-					consoleArea.append("⚠️ Error al generar imagen: " + ex.getMessage() + "\n");
-				});
-			} finally {
-				btnGenerarImagen.setEnabled(true);
-			}
-		});
-
-		hiloGenerarImagen.start();
-	}
-
-	private void detenerGeneracionImagen() {
-		if (process != null && process.isAlive()) {
-			try {
-				process.destroy(); // O destroyForcibly() si no responde
-				Thread.sleep(5000); // Esperar un poco para que el proceso se detenga
-				if (process.isAlive()) {
-					consoleArea.append("⚠️ El proceso no respondió, forzando detención...\n");
-					process.destroyForcibly();
-				}
-			} catch (Exception e) {
-				consoleArea.append("🛑 El proceso dio un error al intentar detenerlo. Error=" + e.getMessage() + "\n");
-			}
-			consoleArea.append("🛑 Proceso detenido por el usuario.\n");
-			btnGenerarImagen.setEnabled(true);
-		} else {
-			consoleArea.append("⚠️ No hay proceso de generación de imagen en ejecución para detener.\n");
-		}
-	}
-	
-	
-	private void mostrarImagenEnPanel(String rutaImagen, JPanel panel) {
-	    try {
-	        BufferedImage imagen = ImageIO.read(new File(rutaImagen));
-	        ImagenEscalable imagenPanel = new ImagenEscalable(imagen);
-
-	        panel.removeAll();
-	        panel.setLayout(new BorderLayout());
-	        panel.add(imagenPanel, BorderLayout.CENTER);
-	        panel.revalidate();
-	        panel.repaint();
-	    } catch (IOException e) {
-	        consoleArea.append("❌ Error IO al cargar imagen para mostrar: " + e.getMessage() + "\n");
-		} catch (Exception e) {
-			consoleArea.append("❌ Error no determinado al mostrar imagen: " + e.getMessage() + "\n");
-		}
-	}
-	
-	class ImagenEscalable extends JPanel {
-	    private BufferedImage imagen;
-
-	    public ImagenEscalable(BufferedImage img) {
-	        this.imagen = img;
-	        this.setBackground(Color.BLACK); // Fondo si la imagen no cubre todo
-	    }
-
-	    @Override
-	    protected void paintComponent(Graphics g) {
-	        super.paintComponent(g);
-	        if (imagen != null) {
-	            int panelWidth = getWidth();
-	            int panelHeight = getHeight();
-
-	            // Escalado proporcional
-	            double escalaX = (double) panelWidth / imagen.getWidth();
-	            double escalaY = (double) panelHeight / imagen.getHeight();
-	            double escala = Math.min(escalaX, escalaY);
-
-	            int ancho = (int) (imagen.getWidth() * escala);
-	            int alto = (int) (imagen.getHeight() * escala);
-
-	            int x = (panelWidth - ancho) / 2;
-	            int y = (panelHeight - alto) / 2;
-
-	            g.drawImage(imagen, x, y, ancho, alto, this);
-	        }
-	    }
 	}
 	
 }

@@ -36,6 +36,8 @@ import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.DefaultComboBoxModel;
 import java.awt.Component;
+import java.awt.Desktop;
+
 import javax.swing.Box;
 import java.awt.Font;
 import java.awt.event.ActionListener;
@@ -121,6 +123,28 @@ public class VentanaPrincipal {
 		JSeparator separator_1 = new JSeparator();
 		separator_1.setOrientation(SwingConstants.VERTICAL);
 		toolBar.add(separator_1);
+		
+		JButton btnNewButton_6 = new JButton("Navegar directorio de proyecto");
+		btnNewButton_6.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//Copilot, abrir el explorador de archivos en el directorio raíz del proyecto Java, usar java.awt.Desktop compatible con Windows, Linux y MacOS
+				try {
+					// Copilot, abrir el explorador de archivos en el directorio raíz del proyecto
+					// Java
+					File dir = new File(directorioRaizProyectoJava);
+					if (Desktop.isDesktopSupported()) {
+						Desktop.getDesktop().open(dir);
+					} else {
+						JOptionPane.showMessageDialog(frmTextoASubttulos,
+								"El escritorio no es compatible con esta operación.");
+					}
+				} catch (IOException ex) {
+					JOptionPane.showMessageDialog(frmTextoASubttulos,
+							"Error al abrir el directorio: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		});
+		toolBar.add(btnNewButton_6);
 		
 		Component verticalStrut_1 = Box.createVerticalStrut(20);
 		toolBar.add(verticalStrut_1);

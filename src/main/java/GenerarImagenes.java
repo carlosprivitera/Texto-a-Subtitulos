@@ -193,12 +193,9 @@ public class GenerarImagenes extends JDialog {
 								txtPrompt.setFont(new Font("Open Sans Semibold", Font.PLAIN, 14));
 								scrollPane_1.setViewportView(txtPrompt);
 								txtPrompt.setRows(8);
-								txtPrompt.setText("Imagen ultra realista de una oficina moderna con ventanales grandes, "
-										+ "muy iluminada por luz natural. Hay muchas plantas decorativas. "
-										+ "Dos escritorios bien organizados: en uno hay un cactus florecido, "
-										+ "en el otro una taza de café humeante. Una persona sonriente "
-										+ "y feliz que trabaja frente a una computadora. "
-										+ "A su lado, un robot elegante con traje rojo brillante, de aspecto profesional.");
+								txtPrompt.setText("Imagen ultra realista de una oficina de trabajo moderna con ventanales grandes, "
+										+ "muy iluminada con luz natural. Hay muchas plantas decorativas y el scritorio de trabajo bien organizado. "
+										+ "Está trabajando un moderno Robot en una computadora y tomando una taza de café caliente.");
 								txtPrompt.setLineWrap(true);
 							}
 						}
@@ -272,7 +269,7 @@ public class GenerarImagenes extends JDialog {
 	private void miIniciar() {
 		slider_ancho.setValue(1920);
 		slider_alto.setValue(1080);
-		slider_escala.setValue(7);
+		slider_escala.setValue(12);
 		slider_pasos.setValue(40);
 
 	}
@@ -301,11 +298,13 @@ public class GenerarImagenes extends JDialog {
 		// Ruta al ejecutable Python del entorno virtual
 		String pythonVenv = "python/sd-venv/bin/python3"; // adaptá si usás Windows o rutas absolutas
 
+		String negative_prompt = "blurry, deformed, cartoon, low resolution, watermark";
 		// Construir proceso
 		List<String> comando = new ArrayList<>();
 		comando.add(pythonVenv);
 		comando.add("src-python/generar_imagen_sdxl.py");
 		comando.add(prompt);
+		comando.add(negative_prompt);
 		comando.add(height);
 		comando.add(width);
 		comando.add(scale);
@@ -327,7 +326,15 @@ public class GenerarImagenes extends JDialog {
 					while ((line = reader.readLine()) != null) {
 						final String finalLine = line;
 						SwingUtilities.invokeLater(() -> {
-							consoleArea.append(finalLine + "\n");
+							//Copilot, no quiero que se agregue un salto de línea si la línea empieza con un número, debe sobrescribir la línea anterior 
+							if (finalLine.matches("^\\d.*")) {
+								// Si la línea empieza con un número, sobrescribir la línea anterior
+								consoleArea.setText(consoleArea.getText().replaceFirst("(?m)^.*$", finalLine));
+							} else {
+								// Si no, agregar una nueva línea
+								consoleArea.append(finalLine + "\n");
+							}
+							//consoleArea.append(finalLine + "\n");
 							consoleArea.setCaretPosition(consoleArea.getDocument().getLength());
 						});
 					}

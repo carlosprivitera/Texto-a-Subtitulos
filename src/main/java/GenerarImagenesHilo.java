@@ -9,6 +9,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
@@ -17,19 +20,20 @@ import javax.swing.SwingUtilities;
 
 
 public class GenerarImagenesHilo {
-	private Thread hiloGenerarImagen = null;
-	private Process process;
+
 	
 	public GenerarImagenesHilo() {
 		// TODO Auto-generated constructor stub
 	}
-
-    
-    
+	
+	private final ExecutorService colaSecuencial = Executors.newSingleThreadExecutor();
+	
+	private Thread hiloGenerarImagen = null;
+	private Process process;
     public void iniciarGeneracionImagen(List<String> comando, String nombreSalida, JTextArea consoleArea, JPanel panel_VistaImagen) {
     	    // Iniciar el hilo para generar la imagen
-
-    	hiloGenerarImagen = new Thread(() -> {
+        // hiloGenerarImagen = new Thread(() ->
+    	colaSecuencial.submit(() -> {
     		//btnGenerarImagen.setEnabled(false);
     		try {
     			ProcessBuilder pb = new ProcessBuilder(comando);
@@ -62,16 +66,19 @@ public class GenerarImagenesHilo {
     						        nuevoTexto = finalLine + "\n";
     						    }
     						    consoleArea.setText(nuevoTexto);
-    						    consoleArea.setCaretPosition(consoleArea.getDocument().getLength());
+    						    consoleArea.setCaretPosition(consoleArea.getDocument().getLength());//esta línea asegura que el cursor se mantenga al final del texto
     						});
     					}
     					//Guardar la última línea leída
     					line_temporal = line;
+    					//Thread.sleep(100); // Para evitar saturar el hilo de la interfaz
+    					//hiloGenerarImagen.sleep(100);
     				}
     			}
-
-    			int exitCode = process.waitFor();
-    			SwingUtilities.invokeLater(() -> {
+    			//hiloGenerarImagen.sleep(100); // Para evitar saturar el hilo de la interfaz
+    			int exitCode = process.waitFor();//esta línea espera a que el proceso termine y captura su código de salida
+    			//hiloGenerarImagen.sleep(100); // Para evitar saturar el hilo de la interfaz
+    			SwingUtilities.invokeLater(() -> {//esta
     				if (exitCode == 0) {
     					consoleArea.append("\n✅ Imagen generada: " + nombreSalida + "\n");
     					// Mostrar imagen en el panel
@@ -91,9 +98,22 @@ public class GenerarImagenesHilo {
     		}
     	});
     	
-    	hiloGenerarImagen.start();
+    	//hiloGenerarImagen.start();
+
     }
-    
+
+    public void cerrarCola() {
+        colaSecuencial.shutdown(); // No acepta nuevas tareas, pero deja que terminen las que ya están en cola
+        try {
+            // Espera hasta 60 segundos que todas terminen, de forma ordenada
+            if (!colaSecuencial.awaitTermination(60, TimeUnit.SECONDS)) {
+                colaSecuencial.shutdownNow(); // Si no terminaron, entonces las interrumpe
+            }
+        } catch (InterruptedException e) {
+            colaSecuencial.shutdownNow(); // Interrupción externa, forzar cierre
+            Thread.currentThread().interrupt(); // Restaurar el estado de interrupción
+        }
+    }
     
 	private void mostrarImagenEnPanel(String rutaImagen, JPanel panel, JTextArea consoleArea) {
 	    try {

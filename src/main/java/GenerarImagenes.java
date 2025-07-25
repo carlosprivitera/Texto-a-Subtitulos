@@ -322,23 +322,16 @@ public class GenerarImagenes extends JDialog {
 		String[] parrafos = prompt.split("\n");
 		//Recorrer el array de párrafos en un bucle for
 		//StringBuilder promptBuilder = new StringBuilder();
+		hiloGenerarImagen = new GenerarImagenesHilo();
 		int contador = 0;
 		for (String parrafo : parrafos) {
 			if (!parrafo.trim().isEmpty()) { // Ignorar líneas vacías
 				//promptBuilder.append(parrafo.trim()).append(" "); //esta
 				consoleArea.append("🔄 Procesando prompt número = " + contador + "\n");
-				boolean activo = hiloGenerarImagen.isHiloGenerarImagenActivo();
-				if (activo) {
+				
 					procesarParrafo(parrafo);
 					contador++;
-				}else {
-				   //Copilot: esperar 2 segundos antes de procesar el siguiente párrafo
-					try {
-						Thread.sleep(2000); // Esperar 2 segundos
-					} catch (InterruptedException e) {
-						
-					}
-				}
+				
 			}
 		}
 	}
@@ -373,7 +366,6 @@ public class GenerarImagenes extends JDialog {
 		comando.add(steps);
 		comando.add(nombreSalida);
         
-		hiloGenerarImagen = new GenerarImagenesHilo();
 		
 		hiloGenerarImagen.iniciarGeneracionImagen(comando, nombreSalida, consoleArea, panel_VistaImagen);
 

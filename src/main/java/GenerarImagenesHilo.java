@@ -20,7 +20,6 @@ import javax.swing.SwingUtilities;
 
 
 public class GenerarImagenesHilo {
-
 	
 	public GenerarImagenesHilo() {
 		// TODO Auto-generated constructor stub
@@ -28,7 +27,7 @@ public class GenerarImagenesHilo {
 	
 	private final ExecutorService colaSecuencial = Executors.newSingleThreadExecutor();
 	
-	private Thread hiloGenerarImagen = null;
+	//private Thread hiloGenerarImagen = null;
 	private Process process;
     public void iniciarGeneracionImagen(List<String> comando, String nombreSalida, JTextArea consoleArea, JPanel panel_VistaImagen) {
     	    // Iniciar el hilo para generar la imagen
@@ -78,6 +77,16 @@ public class GenerarImagenesHilo {
     			//hiloGenerarImagen.sleep(100); // Para evitar saturar el hilo de la interfaz
     			int exitCode = process.waitFor();//esta línea espera a que el proceso termine y captura su código de salida
     			//hiloGenerarImagen.sleep(100); // Para evitar saturar el hilo de la interfaz
+				if (GenerarImagenes.getContadorImagenesProcesadas() <= GenerarImagenes.getTotalImagenesProcesar()) {
+					consoleArea.append("✅ Se ha processado la imagen número " + GenerarImagenes.getContadorImagenesProcesadas() + " de " + 
+				                              GenerarImagenes.getTotalImagenesProcesar() + ".\n");
+					GenerarImagenes.setContadorImagenesProcesadas(1);
+				}
+				if(GenerarImagenes.getContadorImagenesProcesadas() == GenerarImagenes.getTotalImagenesProcesar()) {
+					consoleArea.append("✅ Se han processado todas las imagen.\n");
+					GenerarImagenes.botonGenerarImagenHabilitar(); // Habilitar el botón de generación de imagen
+				}
+				consoleArea.setCaretPosition(consoleArea.getDocument().getLength());
     			SwingUtilities.invokeLater(() -> {//esta
     				if (exitCode == 0) {
     					consoleArea.append("\n✅ Imagen generada: " + nombreSalida + "\n");
@@ -91,7 +100,7 @@ public class GenerarImagenesHilo {
     		} catch (Exception ex) {
     			ex.printStackTrace();
     			SwingUtilities.invokeLater(() -> {
-    				consoleArea.append("⚠️ Error al generar imagen: " + ex.getMessage() + "\n");
+    				consoleArea.append("⚠️ Error al generar imagen (Proceso detenido por el usuario o error no determinado): " + ex.getMessage() + "\n");
     			});
     		} finally {
     			//btnGenerarImagen.setEnabled(true);
@@ -103,16 +112,23 @@ public class GenerarImagenesHilo {
     }
 
     public void cerrarCola() {
-        colaSecuencial.shutdown(); // No acepta nuevas tareas, pero deja que terminen las que ya están en cola
         try {
-            // Espera hasta 60 segundos que todas terminen, de forma ordenada
-            if (!colaSecuencial.awaitTermination(60, TimeUnit.SECONDS)) {
-                colaSecuencial.shutdownNow(); // Si no terminaron, entonces las interrumpe
-            }
-        } catch (InterruptedException e) {
-            colaSecuencial.shutdownNow(); // Interrupción externa, forzar cierre
-            Thread.currentThread().interrupt(); // Restaurar el estado de interrupción
-        }
+          colaSecuencial.shutdown(); // No acepta nuevas tareas, pero deja que terminen las que ya están en cola
+          Thread.sleep(5000);
+          colaSecuencial.shutdownNow(); // Si no terminaron, entonces las interrumpe
+	    } catch (InterruptedException e) {
+		  colaSecuencial.shutdownNow(); // Interrupción externa, forzar cierre
+		  Thread.currentThread().interrupt(); // Restaurar el estado de interrupción
+	    }
+//        try {
+//            // Espera hasta 60 segundos que todas terminen, de forma ordenada
+//            if (!colaSecuencial.awaitTermination(60, TimeUnit.SECONDS)) {
+//                colaSecuencial.shutdownNow(); // Si no terminaron, entonces las interrumpe
+//            }
+//        } catch (InterruptedException e) {
+//            colaSecuencial.shutdownNow(); // Interrupción externa, forzar cierre
+//            Thread.currentThread().interrupt(); // Restaurar el estado de interrupción
+//        }
     }
     
 	private void mostrarImagenEnPanel(String rutaImagen, JPanel panel, JTextArea consoleArea) {
@@ -132,24 +148,24 @@ public class GenerarImagenesHilo {
 		}
 	}
 	
-	public void detenerGeneracionImagen(JTextArea consoleArea) {
-		if (process != null && process.isAlive()) {
-			try {
-				process.destroy(); // O destroyForcibly() si no responde
-				Thread.sleep(5000); // Esperar un poco para que el proceso se detenga
-				if (process.isAlive()) {
-					consoleArea.append("⚠️ El proceso no respondió, forzando detención...\n");
-					process.destroyForcibly();
-				}
-			} catch (Exception e) {
-				consoleArea.append("🛑 El proceso dio un error al intentar detenerlo. Error=" + e.getMessage() + "\n");
-			}
-			consoleArea.append("🛑 Proceso detenido por el usuario.\n");
-			//btnGenerarImagen.setEnabled(true);
-		} else {
-			consoleArea.append("⚠️ No hay proceso de generación de imagen en ejecución para detener.\n");
-		}
-	}
+//	public void detenerGeneracionImagen(JTextArea consoleArea) {
+//		if (process != null && process.isAlive()) {
+//			try {
+//				process.destroy(); // O destroyForcibly() si no responde
+//				Thread.sleep(5000); // Esperar un poco para que el proceso se detenga
+//				if (process.isAlive()) {
+//					consoleArea.append("⚠️ El proceso no respondió, forzando detención...\n");
+//					process.destroyForcibly();
+//				}
+//			} catch (Exception e) {
+//				consoleArea.append("🛑 El proceso dio un error al intentar detenerlo. Error=" + e.getMessage() + "\n");
+//			}
+//			consoleArea.append("🛑 Proceso detenido por el usuario.\n");
+//			//btnGenerarImagen.setEnabled(true);
+//		} else {
+//			consoleArea.append("⚠️ No hay proceso de generación de imagen en ejecución para detener.\n");
+//		}
+//	}
 	
 	
 	private class ImagenEscalable extends JPanel {
@@ -183,20 +199,20 @@ public class GenerarImagenesHilo {
 	    }
 	}
 	
-	//Copilot: No olvides cerrar el hilo si es necesario al finalizar la aplicación
-	public void cerrarHilo() {
-		if (hiloGenerarImagen != null && hiloGenerarImagen.isAlive()) {
-			hiloGenerarImagen.interrupt(); // Interrumpir el hilo si está en ejecución
-			hiloGenerarImagen = null; // Limpiar la referencia al hilo
-		}
-		if (process != null && process.isAlive()) {
-			process.destroy(); // Asegurarse de que el proceso también se detenga
-		}
-	}
+//	//Copilot: No olvides cerrar el hilo si es necesario al finalizar la aplicación
+//	public void cerrarHilo() {
+//		if (hiloGenerarImagen != null && hiloGenerarImagen.isAlive()) {
+//			hiloGenerarImagen.interrupt(); // Interrumpir el hilo si está en ejecución
+//			hiloGenerarImagen = null; // Limpiar la referencia al hilo
+//		}
+//		if (process != null && process.isAlive()) {
+//			process.destroy(); // Asegurarse de que el proceso también se detenga
+//		}
+//	}
 	
-	//Copilot: Me haces un método que retorne verdadero si el hilo de generación de imagen está activo, falso en caso contrario.
-	public boolean isHiloGenerarImagenActivo() {
-		return hiloGenerarImagen != null && hiloGenerarImagen.isAlive();
-	}
+//	//Copilot: Me haces un método que retorne verdadero si el hilo de generación de imagen está activo, falso en caso contrario.
+//	public boolean isHiloGenerarImagenActivo() {
+//		return hiloGenerarImagen != null && hiloGenerarImagen.isAlive();
+//	}
 	
 }

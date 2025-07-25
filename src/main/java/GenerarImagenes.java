@@ -37,6 +37,9 @@ import java.awt.Dimension;
 import java.awt.Font;
 
 public class GenerarImagenes extends JDialog {
+    private static int totalImagenesProcesar = 0; // Imágenes a procesar
+
+	private static int contadorImagenesProcesadas = 0; // Imágenes procesadas
 
 	private static final long serialVersionUID = 1L;
 	private final JPanel contentPanel = new JPanel();
@@ -55,7 +58,7 @@ public class GenerarImagenes extends JDialog {
 
 	//private Thread hiloGenerarImagen = null;
 	private JButton btnNewButton = null;
-	private JButton btnGenerarImagen;
+	private static JButton btnGenerarImagen;
 	private JScrollPane scrollPane;
 	private JScrollPane scrollPane_1;
 	private JSplitPane splitPane_1;
@@ -263,9 +266,14 @@ public class GenerarImagenes extends JDialog {
 				btnPararProceso.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						try {
-						   hiloGenerarImagen.detenerGeneracionImagen(consoleArea);
+						   //hiloGenerarImagen.detenerGeneracionImagen(consoleArea);
+							consoleArea.append("\n🔴 Deteniendo el proceso de generación de imágenes. "
+									+ "\nDemorará detener el modelo IA generador de imágenes. "
+									+ "\nCuando termine el proceso en curso o imagen en proceso se detendrá ...");
+							hiloGenerarImagen.cerrarCola();
+							btnGenerarImagen.setEnabled(true); // Habilitar el botón de generación de imagen
 						} catch (Exception ex) {
-							consoleArea.append("❌ Error no esperado al detener el proceso: " + ex.getMessage() + "\n");
+							consoleArea.append("❌ Error no esperado al detener la cola de procesos: " + ex.getMessage() + "\n");
 						}
 					}
 				});
@@ -314,29 +322,29 @@ public class GenerarImagenes extends JDialog {
 			consoleArea.append("⚠️ El campo de prompt está vacío.\n");
 			return;
 		}
-
+		btnGenerarImagen.setEnabled(false); // Deshabilitar botón mientras se genera la imagen
 		consoleArea.setText(""); // Limpiar consola
 		consoleArea.append("🔄 Generando las imagenes de todos los prompt...\n");
-
 		//Copilot, divide prompt en un array de párrafos, los parrafos estan separados por saltos de línea
 		String[] parrafos = prompt.split("\n");
 		//Recorrer el array de párrafos en un bucle for
 		//StringBuilder promptBuilder = new StringBuilder();
 		hiloGenerarImagen = new GenerarImagenesHilo();
-		int contador = 0;
+		totalImagenesProcesar = 0;
 		for (String parrafo : parrafos) {
 			if (!parrafo.trim().isEmpty()) { // Ignorar líneas vacías
 				//promptBuilder.append(parrafo.trim()).append(" "); //esta
-				consoleArea.append("🔄 Procesando prompt número = " + contador + "\n");
-				
-					procesarParrafo(parrafo);
-					contador++;
-				
+				consoleArea.append("🔄 Procesando prompt número = " + totalImagenesProcesar + "\n");
+				    String timestamp = new java.text.SimpleDateFormat("yyyy_MM_dd_HH_mm_ss").format(new java.util.Date());
+				    timestamp += "_img" + totalImagenesProcesar; // Agregar contador para evitar colisiones de nombres
+					procesarParrafo(parrafo, timestamp);
+					totalImagenesProcesar++;
 			}
 		}
+		contadorImagenesProcesadas = 0; // Reiniciar contador de imágenes procesadas
 	}
     
-	private void procesarParrafo(String prompt) {
+	private void procesarParrafo(String prompt, String nombreSalidaFechaHora) {
 
 		// Leer parámetros desde sliders
 		String height = String.valueOf(slider_alto.getValue()); // 512 - 1080
@@ -346,8 +354,8 @@ public class GenerarImagenes extends JDialog {
 
 		
 		// Generar nombre de archivo con timestamp
-		String timestamp = new java.text.SimpleDateFormat("yyyy_MM_dd_HH_mm_ss").format(new java.util.Date());
-		String nombreSalida = "salida-imagenes/imagen_" + timestamp + ".png";
+//		String timestamp = new java.text.SimpleDateFormat("yyyy_MM_dd_HH_mm_ss").format(new java.util.Date());
+        String nombreSalida = "salida-imagenes/" + nombreSalidaFechaHora + ".png";
 
 		// Ruta al ejecutable Python del entorno virtual
 		String pythonVenv = "python/sd-venv/bin/python3"; // adaptá si usás Windows o rutas absolutas
@@ -365,10 +373,24 @@ public class GenerarImagenes extends JDialog {
 		comando.add(scale);
 		comando.add(steps);
 		comando.add(nombreSalida);
-        
-		
+  	
 		hiloGenerarImagen.iniciarGeneracionImagen(comando, nombreSalida, consoleArea, panel_VistaImagen);
-
 	}
 	
+
+    public static int getTotalImagenesProcesar() {
+		return totalImagenesProcesar;
+	}
+
+	public static void setContadorImagenesProcesadas(int n_imagenesProcesadas) {
+		contadorImagenesProcesadas = contadorImagenesProcesadas + n_imagenesProcesadas;
+	}
+	
+	public static int getContadorImagenesProcesadas() {
+		return contadorImagenesProcesadas;
+	}
+
+	public static void botonGenerarImagenHabilitar() {
+		btnGenerarImagen.setEnabled(true); // Habilitar el botón de generación de imagen
+	}
 }

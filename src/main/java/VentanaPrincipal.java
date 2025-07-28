@@ -57,7 +57,7 @@ public class VentanaPrincipal {
 	private JComboBox list=null;
 	private JComboBox list_1;
 	private JScrollPane scrollPane_1;
-	private JTextArea txtrHolaEsteEs;
+	private JTextArea textoTecnico;
 	private JButton btnExportar = new JButton("Exportar");
 	private JComboBox list_2 = new JComboBox();
 	private static VentanaPrincipal window = null;
@@ -206,7 +206,7 @@ public class VentanaPrincipal {
 		btnNewButton_1.setToolTipText("Pegar desde el porta papeles");
 		toolBar_1.add(btnNewButton_1);
 		
-		JButton btnNewButton_5 = new JButton("Convertir a srt ==>");
+		JButton btnNewButton_5 = new JButton("srt ==>");
 		btnNewButton_5.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				btnNewButton_5.setEnabled(false);
@@ -216,6 +216,14 @@ public class VentanaPrincipal {
 				btnNewButton_5.setEnabled(true);
 			}
 		});
+		
+		JButton btnNewButton_7 = new JButton("Prompt");
+		btnNewButton_7.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				cargarVentanaGenerarPrompt();
+			}
+		});
+		toolBar_1.add(btnNewButton_7);
 		toolBar_1.add(btnNewButton_5);
 		
 		JPanel panel_5 = new JPanel();
@@ -306,15 +314,31 @@ public class VentanaPrincipal {
 			}
 		});
 		
-		txtrHolaEsteEs =   new JTextArea();
-		txtrHolaEsteEs.setLineWrap(true);
-		scrollPane_1.add(txtrHolaEsteEs);
-		txtrHolaEsteEs.setFont(new Font("Open Sans", Font.PLAIN, 16));
-		txtrHolaEsteEs.setText("Hola, procesando títulos \nEste es el segundo subtítulo, dividido en dos subtítulos.\nEste es el cuarto subtítulo.\n");
-		scrollPane_1.setViewportView(txtrHolaEsteEs);
+		textoTecnico =   new JTextArea();
+		textoTecnico.setLineWrap(true);
+		scrollPane_1.add(textoTecnico);
+		textoTecnico.setFont(new Font("Open Sans", Font.PLAIN, 16));
+		textoTecnico.setText("Hola, procesando títulos \nEste es el segundo subtítulo, dividido en dos subtítulos.\nEste es el cuarto subtítulo.\n");
+		scrollPane_1.setViewportView(textoTecnico);
 		
 		JLabel lblNewLabel = new JLabel("Ayuda");
 		frmTextoASubttulos.getContentPane().add(lblNewLabel, BorderLayout.SOUTH);
+	}
+
+	protected void cargarVentanaGenerarPrompt() {
+		// TODO Auto-generated method stub
+		// Copilot, llamar a la ventana JDialog con el nombre de GenerarPrompt
+		GenerarPrompt generarPrompt = new GenerarPrompt();
+		generarPrompt.cargarTextoTecnico(textoTecnico);
+		// Copilot, que la ventana esté centrada en la pantalla
+		generarPrompt.setLocationRelativeTo(frmTextoASubttulos);
+		// Copilot, que la ventana sea visible
+		generarPrompt.setVisible(true);
+		// Copilot, que la ventana sea modal
+		generarPrompt.setModal(true);
+		// Copilot, que la ventana tenga un título
+		generarPrompt.setTitle("Generar Prompt");
+
 	}
 
 	protected void btnGenerarImagenClicked(ActionEvent e) {
@@ -371,7 +395,7 @@ public class VentanaPrincipal {
 			File selectedFile = fileChooser.getSelectedFile();
 			try {
 				// Guardar el contenido del JTextArea en el archivo seleccionado
-				Files.write(Paths.get(selectedFile.getAbsolutePath()), txtrHolaEsteEs.getText().getBytes());
+				Files.write(Paths.get(selectedFile.getAbsolutePath()), textoTecnico.getText().getBytes());
 				JOptionPane.showMessageDialog(frmTextoASubttulos,
 						"Archivo guardado correctamente: " + selectedFile.getAbsolutePath(), "Éxito",
 						JOptionPane.INFORMATION_MESSAGE);
@@ -410,7 +434,7 @@ public class VentanaPrincipal {
 			try {
 				String content = new String(Files.readAllBytes(Paths.get(selectedFile.getAbsolutePath())));
 				//textArea.setText(content);
-				txtrHolaEsteEs.setText(content);
+				textoTecnico.setText(content);
 			} catch (IOException ex) {
 				JOptionPane.showMessageDialog(frmTextoASubttulos, "Error al leer el archivo: " + ex.getMessage(),
 						"Error", JOptionPane.ERROR_MESSAGE);
@@ -534,7 +558,7 @@ public class VentanaPrincipal {
 		  Float a = Float.parseFloat(list.getSelectedItem().toString());
 		  Float b = Float.parseFloat( this.list_1.getSelectedItem().toString()) / 1000;
 		  try {
-			String textoTXTaSRT = this.txtrHolaEsteEs.getText();
+			String textoTXTaSRT = this.textoTecnico.getText();
 			titulosSTR = convertToSRT(a, b, textoTXTaSRT);
 		  } catch (Exception er) {
 			// TODO Auto-generated catch block
@@ -552,8 +576,8 @@ public class VentanaPrincipal {
 	    // Get text from clipboard
 		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 		String text2 = (String) clipboard.getData(DataFlavor.stringFlavor);
-		txtrHolaEsteEs.setText(text2);  
-		String textoTXTaSRT = this.txtrHolaEsteEs.getText();
+		textoTecnico.setText(text2);  
+		String textoTXTaSRT = this.textoTecnico.getText();
 		titulosSTR = convertToSRT(a, b, textoTXTaSRT);
 	  } catch (IOException | UnsupportedFlavorException e) {
 		// TODO Auto-generated catch block

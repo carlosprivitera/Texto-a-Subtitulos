@@ -1,0 +1,44 @@
+Convertir el siguiente texto técnico en una lista numerada de prompt, 
+ cada prompt se usará para generar una imagen detallada, descriptiva y visual del texto técnico.
+
+Se debe generar un prompt por cada párrafo del texto técnico,
+ si es necesario se puede unir más de un párrafo del texto tácnico para enriquecer cada prompt.
+
+Los párrafos que contienen código de algún lenguaje de programación no deben ser convertidos a un prompt.
+
+Los párrafos que contienen comandos de terminal o consola, tampoco deben ser convertidos a un prompt.
+
+Enriquecer los prompts con detalles visuales, colores, texturas y elementos que representen el contenido del texto técnico.
+
+Por ejemplo: 
+
+Ejemplo 1
+Si el texto técnico en general o un  párrafo habla de metodologías ágiles, enriquecer el prompt con 
+ elementos visuales como post-its, pizarras, equipos de trabajo colaborando, oficinas iluminadas, computadoras, tasas de café, etc.
+
+Ejemplo 2
+Si el párrafo habla de redes neuronales, enriquecer el prompt con elementos visuales como circuitos, nodos conectados, 
+ gráficos de datos, pantallas con código, luces LED, etc.
+
+Ejemplo 3
+Si el texto técnico en general o un  párrafo habla habla de desarrollo web, enriquecer el prompt con elementos visuales como navegadores web, 
+ código HTML, CSS y JavaScript, pantallas de computadoras, dispositivos móviles, etc.
+
+Ejemplo 4
+Si el texto técnico en general o un  párrafo habla habla de bases de datos, enriquecer el prompt con elementos visuales como tablas de datos, gráficos de consultas, 
+ servidores, discos duros, redes de datos, etc.
+
+Ejemplo 5
+Si el texto técnico en general o un  párrafo habla de inteligencia artificial, enriquecer el prompt con elementos visuales como robots, algoritmos, 
+ gráficos de aprendizaje automático, pantallas con datos analíticos, redes neuronales, etc.
+
+Ejemplo 6
+Si el texto técnico en general o un  párrafo habla habla de virtualización de sistemas operativos, enriquecer el prompt con elementos visuales como máquinas virtuales, servidores, 
+ escritorios virtuales, pantallas de configuración, redes de computadoras, etc.
+ 
+Crear más ejemplo si es necesario y enriquecer los ejemplos con detalles visuales, colores, texturas y elementos que representen el contenido del texto técnico.
+
+Con los ejemplos anteriores más los creados por la IA y sumando la creatividad de la IA,
+ crear el listado numerado de los prompts solicitados, por consecuencia cada uno de los prompt se usará para crear una imagen detallada, descriptiva y visual que esté relacionada con el texto técnico.
+
+El texto técnico es el siguiente:

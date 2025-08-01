@@ -235,8 +235,11 @@ public class VentanaPrincipal {
 					} else if (response == JOptionPane.CANCEL_OPTION) {
 						return; // Cancelar la acción si el usuario elige cancelar
 					}
+				} else {
+					btnAbrirTxtTecnico.setEnabled(false);
+					btnAbrirTxtTecnico_actionPerformed(e);
+					btnAbrirTxtTecnico.setEnabled(true);
 				}
-
 			}
 		});
 
@@ -254,18 +257,25 @@ public class VentanaPrincipal {
 							archivoTextoTecnicoAbierto = ""; // Reiniciar la ruta del archivo
 							frmTextoASubttulos.setTitle(tituloVentanaPrincipal); // Reiniciar el título de la ventana
 							btnGuardarTxtTecnico.setEnabled(false); // Deshabilitar el botón de guardar
-							btnGuardarComoTxtTecnico.setEnabled(true); // Habilitar el botón de guardar como
+							//btnGuardarComoTxtTecnico.setEnabled(true); // Habilitar el botón de guardar como
 						}
                     } else if (response == JOptionPane.NO_OPTION) {
                         textoTecnico.setText("");
                         archivoTextoTecnicoAbierto = "";
                         frmTextoASubttulos.setTitle(tituloVentanaPrincipal);
                         btnGuardarTxtTecnico.setEnabled(false);
-                        btnGuardarComoTxtTecnico.setEnabled(true);
+                        //btnGuardarComoTxtTecnico.setEnabled(true);
                     } else if (response == JOptionPane.CANCEL_OPTION) {
                         return; // Cancelar la acción si el usuario elige cancelar
                     }
-				}   
+				} else {
+					textoTecnico.setText(""); // Limpiar el JTextArea
+					archivoTextoTecnicoAbierto = ""; // Reiniciar la ruta del archivo
+					frmTextoASubttulos.setTitle(tituloVentanaPrincipal); // Reiniciar el título de la ventana
+					btnGuardarTxtTecnico.setEnabled(false); // Deshabilitar el botón de guardar
+					// btnGuardarComoTxtTecnico.setEnabled(true); // Habilitar el botón de guardar
+					// como
+				}
 			}
 		});
 		toolBar_1.add(btnNewButton_9);
@@ -273,12 +283,11 @@ public class VentanaPrincipal {
 		toolBar_1.add(btnAbrirTxtTecnico);
 
 		btnGuardarComoTxtTecnico = new JButton("Guardar...");
-		btnGuardarComoTxtTecnico.setEnabled(false);
 		btnGuardarComoTxtTecnico.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				btnGuardarComoTxtTecnico.setEnabled(false);
 				guardarComoArchivoTxtTecnico();
-				btnGuardarComoTxtTecnico.setEnabled(true);
+				//btnGuardarComoTxtTecnico.setEnabled(true);
 
 			}
 		});
@@ -565,7 +574,7 @@ public class VentanaPrincipal {
 				frmTextoASubttulos.setTitle(archivoTextoTecnicoAbierto);
 				currentDirectory = selectedFile.getParent(); // Actualizar el directorio actual
 				btnGuardarTxtTecnico.setEnabled(false);
-				btnGuardarComoTxtTecnico.setEnabled(true);
+				//btnGuardarComoTxtTecnico.setEnabled(true);
 				
 				
 			} catch (IOException ex) {

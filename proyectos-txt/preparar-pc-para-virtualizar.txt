@@ -1,4 +1,4 @@
-Pasos para preparar una máquina anfitrión Debian Linux para virtualización
+Pasos para preparar una máquina anfitrión Debian Linux para virtualización 
 
 Estos pasos no funcionan en una máquina virtual, crear una máquina virtual en otra máquina virtual no es recomendable. Se recomienda usar una máquina anfitrión con un Debian Linux. 
 

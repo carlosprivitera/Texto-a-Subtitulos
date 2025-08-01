@@ -33,7 +33,7 @@ Si el texto técnico en general o un  párrafo habla de inteligencia artificial,
  gráficos de aprendizaje automático, pantallas con datos analíticos, redes neuronales, etc.
 
 Ejemplo 6
-Si el texto técnico en general o un  párrafo habla habla de virtualización de sistemas operativos, enriquecer el prompt con elementos visuales como máquinas virtuales, servidores, 
+Si el texto técnico en general o un  párrafo habla de virtualización de sistemas operativos, enriquecer el prompt con elementos visuales como máquinas virtuales, servidores, 
  escritorios virtuales, pantallas de configuración, redes de computadoras, etc.
  
 Crear más ejemplo si es necesario y enriquecer los ejemplos con detalles visuales, colores, texturas y elementos que representen el contenido del texto técnico.

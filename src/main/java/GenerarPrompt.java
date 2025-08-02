@@ -3,19 +3,25 @@ package main.java;
 import java.awt.EventQueue;
 
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JToolBar;
 import java.awt.BorderLayout;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.awt.event.ActionEvent;
 
 public class GenerarPrompt extends JDialog {
-
+    private static final String tituloVentana = "Generar Prompt";
 	private static final long serialVersionUID = 1L;
 	private JTextArea textoTecnico;
 	private String nombreArchivoPromptAbierto=""; // Nombre del archivo abierto, vacio si no hay ninguno abierto.
@@ -36,6 +42,7 @@ public class GenerarPrompt extends JDialog {
 				try {
 					GenerarPrompt dialog = new GenerarPrompt();
 					dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+					dialog.setTitle(tituloVentana); //No funciona si se pone aquí, hay que ponerlo en el constructor.					
 					dialog.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -203,13 +210,42 @@ public class GenerarPrompt extends JDialog {
 				btnGuardar.setEnabled(true);
 			}
 		});
-		
+		this.setTitle(tituloVentana);
 	}
 	
 	protected boolean leerPromptDesdeArchivo() {
 		// TODO Auto-generated method stub
 		boolean LeerSiNO = false;
-		
+		// Aquí se implementaría la lógica para leer un archivo de prompt
+		//Copilot: implementar la lógica para leer el prompt desde un archivo de texto, El directorio del archivo se debe seleccionar con un JFileChooser.
+		//Si se ha podido leer el archivo, entonces LeerSiNO será true. Si no se ha podido leer el archivo, entonces LeerSiNO será false.
+		//La carpeta de de trabajo es proyectos-prompt.
+		//El nombre del archivo se debe guardar en la variable nombreArchivoPromptAbierto.
+		//La ruta del archivo se debe guardar en la variable rutaArchivoPromptAbierto.
+		//Si el archivo se ha podido leer, entonces se debe cargar el contenido del archivo en el JTextArea llamado prompt.
+	
+		// Ejemplo de implementación:
+		JFileChooser fileChooser = new JFileChooser("proyectos-prompt");
+		int returnValue = fileChooser.showOpenDialog(this);
+		if (returnValue == JFileChooser.APPROVE_OPTION) {
+			File selectedFile = fileChooser.getSelectedFile();
+			try {
+				String contenido = new String(Files.readAllBytes(selectedFile.toPath()), StandardCharsets.UTF_8);
+				prompt.setText(contenido);
+				nombreArchivoPromptAbierto = selectedFile.getName();
+				rutaArchivoPromptAbierto = selectedFile.getAbsolutePath();
+				this.setTitle(tituloVentana + " - " + nombreArchivoPromptAbierto);
+				LeerSiNO = true; // Si se ha podido leer el archivo, LeerSiNO será true
+			} catch (IOException e) {
+				//e.printStackTrace();
+				JOptionPane.showMessageDialog(this, "Error al leer el archivo: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+				LeerSiNO = false; // Si no se ha podido leer el archivo, LeerSiNO será false
+			}
+		}else {
+			JOptionPane.showMessageDialog(this, "No se ha seleccionado ningún archivo.", "Error", JOptionPane.ERROR_MESSAGE);
+			LeerSiNO = false; // Si el usuario cancela la selección del archivo, LeerSiNO será false
+		}
+		// Fin de la implementación
 		return LeerSiNO;
 	}
 	

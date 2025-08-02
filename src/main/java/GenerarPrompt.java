@@ -18,6 +18,14 @@ public class GenerarPrompt extends JDialog {
 
 	private static final long serialVersionUID = 1L;
 	private JTextArea textoTecnico;
+	private String nombreArchivoPromptAbierto=""; // Nombre del archivo abierto, vacio si no hay ninguno abierto.
+	private String rutaArchivoPromptAbierto=""; // Ruta del archivo abierto, vacio si no hay ninguno abierto.
+	private boolean archivoPromptAbiertoEditado=false; // Indica si el archivo con el prmpt se ha modificado. Si está true hay que activar el boton Abrir.
+	private JTextArea prompt;
+	private JButton btnAbrir;
+	private JButton btnGuardar;
+	private JButton btnGuardar_1;
+	private JButton btnNewButton_2;
 
 	/**
 	 * Launch the application.
@@ -41,12 +49,12 @@ public class GenerarPrompt extends JDialog {
 	 */
 	public GenerarPrompt() {
 		setModal(true);
-		setBounds(100, 100, 526, 509);
+		setBounds(100, 100, 682, 508);
 		
 		JToolBar toolBar = new JToolBar();
 		getContentPane().add(toolBar, BorderLayout.NORTH);
 		
-		JButton btnNewButton_3 = new JButton("New button");
+		JButton btnNewButton_3 = new JButton("Salir");
 		toolBar.add(btnNewButton_3);
 		
 		JPanel panel = new JPanel();
@@ -71,21 +79,62 @@ public class GenerarPrompt extends JDialog {
 		JScrollPane scrollPane_1 = new JScrollPane();
 		panel_3.add(scrollPane_1, BorderLayout.CENTER);
 		
-		JTextArea prompt = new JTextArea();
+		prompt = new JTextArea();
 		prompt.setLineWrap(true);
 		scrollPane_1.setViewportView(prompt);
 		
 		JToolBar toolBar_1 = new JToolBar();
 		panel_3.add(toolBar_1, BorderLayout.NORTH);
 		
-		JButton btnNewButton_1 = new JButton("Leer");
-		btnNewButton_1.addActionListener(new ActionListener() {
+		JButton btnNuevo = new JButton("Nuevo");
+		btnNuevo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				leerPromptDesdeArchivo();
+			
 			}
 		});
-		btnNewButton_1.setToolTipText("Lee un archivo con un prompt");
-		toolBar_1.add(btnNewButton_1);
+		btnNuevo.setToolTipText("Lee un archivo con un prompt");
+		toolBar_1.add(btnNuevo);
+		
+		btnAbrir = new JButton("Abrir");
+		btnAbrir.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// Aquí se implementaría la lógica para abrir un archivo de prompt
+				// Por ejemplo, mostrar un diálogo de selección de archivo y cargar su contenido
+				// en el JTextArea 'prompt'
+				// Copilot: si archivoPromptAbiertoEditado es true, entonces preguntar al usuario si quiere guardar o no guardar o cancelar la operación de Abrir.
+				if (archivoPromptAbiertoEditado) {
+					int respuesta = javax.swing.JOptionPane.showConfirmDialog(null,
+							"El prompt ha sido editado. ¿Desea guardar los cambios?", "Guardar cambios",
+							javax.swing.JOptionPane.YES_NO_CANCEL_OPTION);
+					if (respuesta == javax.swing.JOptionPane.YES_OPTION) {
+						if (guardarPromptEnUnArchivo()==false) {
+                             return; // Si no se ha podido guardar, cancelar la operación de abrir un nuevo archivo
+						}
+					} 
+					if (respuesta == javax.swing.JOptionPane.CANCEL_OPTION) {
+						return; // Cancelar la operación de abrir un nuevo archivo
+					}
+					if (respuesta == javax.swing.JOptionPane.NO_OPTION) {
+						// No hacer nada, continuar con la apertura del nuevo archivo
+						
+					}
+				} 
+				if(leerPromptDesdeArchivo()==false) { // Lógica para leer el prompt desde un archivo
+					return; // Si no se ha podido leer el archivo, cancelar la operación de abrir un nuevo archivo
+				}else {
+				  archivoPromptAbiertoEditado = false; // Al abrir un archivo, se resetea el estado de edición
+				  btnGuardar.setEnabled(false); // Deshabilitar botón Guardar al abrir un nuevo archivo
+				}  
+			}
+		});
+		toolBar_1.add(btnAbrir);
+		
+		btnGuardar = new JButton("Guardar");
+		btnGuardar.setEnabled(false);
+		toolBar_1.add(btnGuardar);
+		
+		btnGuardar_1 = new JButton("Guardar...");
+		toolBar_1.add(btnGuardar_1);
 		
 		JPanel panel_4 = new JPanel();
 		splitPane_1.setRightComponent(panel_4);
@@ -121,18 +170,60 @@ public class GenerarPrompt extends JDialog {
 		JToolBar toolBar_3 = new JToolBar();
 		panel_2.add(toolBar_3, BorderLayout.NORTH);
 		
-		JButton btnNewButton_2 = new JButton("New button");
+		btnNewButton_2 = new JButton("Generar");
 		toolBar_3.add(btnNewButton_2);
-		splitPane.setDividerLocation(200);
+		splitPane.setDividerLocation(250);
 		
 		JLabel lblNewLabel = new JLabel("New label");
 		getContentPane().add(lblNewLabel, BorderLayout.SOUTH);
-
+        
+		miInicializar();
 	}
 	
-	protected void leerPromptDesdeArchivo() {
-		// TODO Auto-generated method stub
+	private void miInicializar() {
+		// Inicialización de variables y componentes si es necesario
+		// Copilot: detectar si el componente del tipo JTextArea llamado prompt ha cambiado el texto, 
+		//  entonces poner la variable archivoPromptAbiertoEditado a true. Y activar el botón Guardar.
+		prompt.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+			@Override
+			public void insertUpdate(javax.swing.event.DocumentEvent e) {
+				archivoPromptAbiertoEditado = true;
+				btnGuardar.setEnabled(true);
+			}
+
+			@Override
+			public void removeUpdate(javax.swing.event.DocumentEvent e) {
+				archivoPromptAbiertoEditado = true;
+				btnGuardar.setEnabled(true);
+			}
+
+			@Override
+			public void changedUpdate(javax.swing.event.DocumentEvent e) {
+				archivoPromptAbiertoEditado = true;
+				btnGuardar.setEnabled(true);
+			}
+		});
 		
+	}
+	
+	protected boolean leerPromptDesdeArchivo() {
+		// TODO Auto-generated method stub
+		boolean LeerSiNO = false;
+		
+		return LeerSiNO;
+	}
+	
+	protected boolean guardarPromptEnUnArchivo() {
+		// TODO Auto-generated method stub
+		boolean guardoSiNO = false;
+		
+		return guardoSiNO;
+	}
+	protected boolean guardarComoPromptEnUnArchivo() {
+		// TODO Auto-generated method stub
+		boolean guardoSiNO = false;
+		
+		return guardoSiNO;		
 	}
 
 	public void cargarTextoTecnico(JTextArea textoTecnico) {

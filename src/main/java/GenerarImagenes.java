@@ -360,8 +360,9 @@ public class GenerarImagenes extends JDialog {
 		// Ruta al ejecutable Python del entorno virtual
 		String pythonVenv = "python/sd-venv/bin/python3"; // adaptá si usás Windows o rutas absolutas
 
-		String negative_prompt = "borroso, deformado, caricatura, baja resolución, marca de agua, texto, "
-				+ "error de anatomía, error de perspectiva, error de iluminación, error de color";
+		//String negative_prompt = "borroso, deformado, caricatura, baja resolución, marca de agua, texto, "
+		//		+ "error de anatomía, error de perspectiva, error de iluminación, error de color";
+		String negative_prompt = "";
 		// Construir proceso
 		List<String> comando = new ArrayList<>();
 		comando.add(pythonVenv);

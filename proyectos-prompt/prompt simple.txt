@@ -1,0 +1,5 @@
+Dado el siguiente texto construir tres prompt que especifiquen la creación de una imagen muy realista de alta resolución.
+
+Los prompt deben nener menos de 77 palabras y se podrán enriqueser con uno de los siguientes temas: equipamiento informático, equipamiento de redes, personas, oficinas, servidores, etc.
+
+Este es el texto:

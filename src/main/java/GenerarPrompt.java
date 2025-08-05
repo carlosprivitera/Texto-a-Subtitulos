@@ -1,6 +1,7 @@
 package main.java;
 
 import java.awt.EventQueue;
+import java.awt.Toolkit;
 
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -106,7 +107,7 @@ public class GenerarPrompt extends JDialog {
 			public void actionPerformed(ActionEvent e) {
 				// Aquí se implementaría la lógica para crear un nuevo prompt
 				// Por ejemplo, limpiar el JTextArea 'prompt' y resetear el estado de edición
-				if (archivoPromptAbiertoEditado) {
+				if (archivoPromptAbiertoEditado==true) {
 					int respuesta = javax.swing.JOptionPane.showConfirmDialog(null,
 							"El prompt ha sido editado. ¿Desea guardar los cambios?", "Guardar cambios",
 							javax.swing.JOptionPane.YES_NO_CANCEL_OPTION);
@@ -122,6 +123,11 @@ public class GenerarPrompt extends JDialog {
 						// No hacer nada, continuar con la creación de un nuevo prompt
 
 					}
+				} else {
+					// Si no hay un prompt editado, continuar con la creación de un nuevo prompt
+					//Copilot: Hacer un beep por el parlante del ordenador.
+					//Toolkit.getDefaultToolkit().beep(); // Emitir un beep
+					Beep.miBeep(); // Emitir un beep
 				}
 				prompt.setText(""); // Limpiar el JTextArea 'prompt'
 				nombreArchivoPromptAbierto = ""; // Resetear el nombre del archivo abierto

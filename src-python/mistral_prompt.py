@@ -25,11 +25,15 @@ def main():
 
     print("🤖 Generando respuesta...", flush=True)
     #//Los parámetros significan:
-    #//max_new_tokens: número máximo de tokens a generar
+    #//max_new_tokens: número máximo de tokens a generar, el rango mínimo es 1 y el máximo es 4096.
     #//do_sample: si se debe muestrear de la distribución de probabilidad
-    #//temperature: controla la aleatoriedad de la generación (0.7 es un valor común)
+    #//temperature: controla la aleatoriedad de la generación (0.7 es un valor común),
+    #// valores más bajos hacen que la salida sea más predecible, mientras que valores más altos la hacen más creativa.
     #//Otros parámetros como top_k y top_p también se pueden ajustar para controlar la diversidad de la salida.
-    # Generar respuesta
+    #//top_k: número de palabras más probables a considerar en cada paso de generación. Los valores más bajos hacen que la salida sea más predecible.
+    #// el valor mínimo es 1 y el máximo es 100. El valor por defecto es 50.
+    #//top_k: es una técnica de muestreo que limita el número de palabras candidatas a las más probables,
+    #// los valores más altos permiten más diversidad. El valor mínimo es 1 y el máximo es 100. El valor por defecto es 50. 
     respuesta = pipe(entrada, max_new_tokens=1024, do_sample=True, temperature=0.7)[0]["generated_text"]
 
     print("✅ Respuesta generada:\n", flush=True)

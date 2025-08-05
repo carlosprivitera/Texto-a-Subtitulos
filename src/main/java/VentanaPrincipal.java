@@ -258,24 +258,28 @@ public class VentanaPrincipal {
 							frmTextoASubttulos.setTitle(tituloVentanaPrincipal); // Reiniciar el título de la ventana
 							btnGuardarTxtTecnico.setEnabled(false); // Deshabilitar el botón de guardar
 							//btnGuardarComoTxtTecnico.setEnabled(true); // Habilitar el botón de guardar como
+						}else {
+							JOptionPane.showMessageDialog(frmTextoASubttulos, "No se pudo guardar el archivo.", "Error",
+									JOptionPane.ERROR_MESSAGE);
+							return; // Cancelar la acción si no se pudo guardar el archivo
 						}
                     } else if (response == JOptionPane.NO_OPTION) {
-                        textoTecnico.setText("");
-                        archivoTextoTecnicoAbierto = "";
-                        frmTextoASubttulos.setTitle(tituloVentanaPrincipal);
-                        btnGuardarTxtTecnico.setEnabled(false);
-                        //btnGuardarComoTxtTecnico.setEnabled(true);
+						// No guardar, no hacer nada y continuar con la creación de un nuevo archivo
+                    	
                     } else if (response == JOptionPane.CANCEL_OPTION) {
                         return; // Cancelar la acción si el usuario elige cancelar
                     }
 				} else {
-					textoTecnico.setText(""); // Limpiar el JTextArea
-					archivoTextoTecnicoAbierto = ""; // Reiniciar la ruta del archivo
-					frmTextoASubttulos.setTitle(tituloVentanaPrincipal); // Reiniciar el título de la ventana
-					btnGuardarTxtTecnico.setEnabled(false); // Deshabilitar el botón de guardar
-					// btnGuardarComoTxtTecnico.setEnabled(true); // Habilitar el botón de guardar
-					// como
+					//Este beep es para indicar que en pantalla ya hay un archivo nuevo sin nombre.
+					Beep.miBeep();
+					//Toolkit.getDefaultToolkit().beep();
 				}
+				textoTecnico.setText(""); // Limpiar el JTextArea
+				archivoTextoTecnicoAbierto = ""; // Reiniciar la ruta del archivo
+				frmTextoASubttulos.setTitle(tituloVentanaPrincipal); // Reiniciar el título de la ventana
+				btnGuardarTxtTecnico.setEnabled(false); // Deshabilitar el botón de guardar
+				// btnGuardarComoTxtTecnico.setEnabled(true); // Habilitar el botón de guardar
+				// como
 			}
 		});
 		toolBar_1.add(btnNewButton_9);

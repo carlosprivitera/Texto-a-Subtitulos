@@ -52,8 +52,11 @@ import java.awt.event.InputMethodListener;
 import java.awt.event.InputMethodEvent;
 
 public class VentanaPrincipal {
+	private String nombreArchivoTextoAbierto=""; // Nombre del archivo abierto, vacio si no hay ninguno abierto.
+	private String rutaArchivoTextoAbierto=""; // Ruta del archivo abierto, vacio si no hay ningun archivo abierto.
+	private boolean archivoTextoAbiertoEditado=false; // Indica si el archivo con el texto técnico se ha modificado. Si es true hay que activar el botón Guardar.
 	// 01
-	private static String currentDirectory = "";
+	//private static String currentDirectory = "";
 	private static final String directorioRaizProyectoJava = System.getProperty("user.dir");
 	private JFrame frmTextoASubttulos;
 	private JTextArea textArea;
@@ -65,7 +68,7 @@ public class VentanaPrincipal {
 	private JButton btnExportar = new JButton("Exportar");
 	private JComboBox list_2 = new JComboBox();
 	private static VentanaPrincipal window = null;
-	private String archivoTextoTecnicoAbierto = "";
+	//private String archivoTextoTecnicoAbierto = "";
 	private final String tituloVentanaPrincipal = "Texto a subtítulos v15-06-24";
 
 	/**
@@ -77,7 +80,7 @@ public class VentanaPrincipal {
 			public void run() {
 				try {
 					window = new VentanaPrincipal();
-					currentDirectory = System.getProperty("user.dir");
+					//currentDirectory = System.getProperty("user.dir");
 					// window.frmTextoASubttulos.setTitle(tituloVentanaPrincipal);
 					// Copilot, centrar la ventana en la pantalla
 					window.frmTextoASubttulos.setLocationRelativeTo(null);
@@ -95,30 +98,26 @@ public class VentanaPrincipal {
 	public VentanaPrincipal() {
 		initialize();
 		textoTecnico.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
-		    public void insertUpdate(javax.swing.event.DocumentEvent e) {
-		        //Component btnGuardarTxtTecnico = null;
-				// El texto ha cambiado (se insertó texto)
-				//JOptionPane.showMessageDialog(frmTextoASubttulos,
-				//		"El texto técnico ha sido modificado 1. No olvides guardar los cambios.");
-				if (archivoTextoTecnicoAbierto.isEmpty()) {
-					btnGuardarComoTxtTecnico.setEnabled(true);
-				}else {
-					btnGuardarTxtTecnico.setEnabled(true);
-				}
-		    }
-		    public void removeUpdate(javax.swing.event.DocumentEvent e) {
-		        // El texto ha cambiado (se eliminó texto)
-		    	//JOptionPane.showMessageDialog(frmTextoASubttulos,
-		    	//		                        "El texto técnico ha sido modificado 2. No olvides guardar los cambios.");
-				if (archivoTextoTecnicoAbierto.isEmpty()) {
-					btnGuardarComoTxtTecnico.setEnabled(true);
-				}else {
-					btnGuardarTxtTecnico.setEnabled(true);
-				}
-		    }
-		    public void changedUpdate(javax.swing.event.DocumentEvent e) {
-		        // Cambios en atributos (no en texto plano)
-		    }
+			@Override
+			public void insertUpdate(javax.swing.event.DocumentEvent e) {//Se llama cuando se inserta texto
+				btnGuardarTxtTecnico.setEnabled(true);
+				archivoTextoAbiertoEditado = true; // Indicar que el archivo ha sido editado
+				frmTextoASubttulos.setTitle(nombreArchivoTextoAbierto + " *"); // Agregar asterisco al título
+			}
+
+			@Override
+			public void removeUpdate(javax.swing.event.DocumentEvent e) {//Se ejecuta cuando se elimina texto
+				btnGuardarTxtTecnico.setEnabled(true);
+				archivoTextoAbiertoEditado = true; // Indicar que el archivo ha sido editado
+				frmTextoASubttulos.setTitle(nombreArchivoTextoAbierto + " *"); // Agregar asterisco al título
+			}
+
+			@Override
+			public void changedUpdate(javax.swing.event.DocumentEvent e) {//Se ejecuta cuando se cambia el formato del texto, pero no el contenido
+				btnGuardarTxtTecnico.setEnabled(true);
+				archivoTextoAbiertoEditado = true; // Indicar que el archivo ha sido editado
+				frmTextoASubttulos.setTitle(nombreArchivoTextoAbierto + " *"); // Agregar asterisco al título
+			}
 		});
 	}
 
@@ -246,19 +245,13 @@ public class VentanaPrincipal {
 		JButton btnNewButton_9 = new JButton("Nuevo");
 		btnNewButton_9.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(btnGuardarTxtTecnico.isEnabled()) {
+				if(archivoTextoAbiertoEditado) {
                     int response = JOptionPane.showConfirmDialog(frmTextoASubttulos,
                             "¿Desea guardar los cambios antes de crear un nuevo archivo?", "Confirmar",
                             JOptionPane.YES_NO_CANCEL_OPTION);
                     if (response == JOptionPane.YES_OPTION) {
                         //btnGuardarTxtTecnico.setEnabled(false);
-						if (guardarArchivoTxtTecnico() == true) {
-							textoTecnico.setText(""); // Limpiar el JTextArea
-							archivoTextoTecnicoAbierto = ""; // Reiniciar la ruta del archivo
-							frmTextoASubttulos.setTitle(tituloVentanaPrincipal); // Reiniciar el título de la ventana
-							btnGuardarTxtTecnico.setEnabled(false); // Deshabilitar el botón de guardar
-							//btnGuardarComoTxtTecnico.setEnabled(true); // Habilitar el botón de guardar como
-						}else {
+						if (guardarArchivoTxtTecnico() == false) {
 							JOptionPane.showMessageDialog(frmTextoASubttulos, "No se pudo guardar el archivo.", "Error",
 									JOptionPane.ERROR_MESSAGE);
 							return; // Cancelar la acción si no se pudo guardar el archivo
@@ -270,12 +263,12 @@ public class VentanaPrincipal {
                         return; // Cancelar la acción si el usuario elige cancelar
                     }
 				} else {
-					//Este beep es para indicar que en pantalla ya hay un archivo nuevo sin nombre.
+					//Este beep es para indicar que en pantalla habia un contenido sin cambio y se remplazó por un archivo nuevo sin nombre.
 					Beep.miBeep();
 					//Toolkit.getDefaultToolkit().beep();
 				}
 				textoTecnico.setText(""); // Limpiar el JTextArea
-				archivoTextoTecnicoAbierto = ""; // Reiniciar la ruta del archivo
+				nombreArchivoTextoAbierto = ""; // Reiniciar el nombre del archivo
 				frmTextoASubttulos.setTitle(tituloVentanaPrincipal); // Reiniciar el título de la ventana
 				btnGuardarTxtTecnico.setEnabled(false); // Deshabilitar el botón de guardar
 				// btnGuardarComoTxtTecnico.setEnabled(true); // Habilitar el botón de guardar

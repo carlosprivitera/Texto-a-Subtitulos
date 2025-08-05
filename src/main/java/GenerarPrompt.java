@@ -33,8 +33,8 @@ public class GenerarPrompt extends JDialog {
 	private static final long serialVersionUID = 1L;
 	private JTextArea textoTecnico;
 	private String nombreArchivoPromptAbierto=""; // Nombre del archivo abierto, vacio si no hay ninguno abierto.
-	private String rutaArchivoPromptAbierto=""; // Ruta del archivo abierto, vacio si no hay ninguno abierto.
-	private boolean archivoPromptAbiertoEditado=false; // Indica si el archivo con el prmpt se ha modificado. Si está true hay que activar el boton Abrir.
+	private String rutaArchivoPromptAbierto=""; // Ruta del archivo abierto, vacio si no hay ningun archivo abierto.
+	private boolean archivoPromptAbiertoEditado=false; // Indica si el archivo con el prompt se ha modificado. Si es true hay que activar el botón Guardar.
 	private JTextArea prompt;
 	private JButton btnAbrir;
 	private JButton btnGuardar;

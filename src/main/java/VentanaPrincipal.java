@@ -53,7 +53,7 @@ import java.awt.event.InputMethodEvent;
 
 public class VentanaPrincipal {
 	private String nombreArchivoTextoAbierto=""; // Nombre del archivo abierto, vacio si no hay ninguno abierto.
-	private String rutaArchivoTextoAbierto=""; // Ruta del archivo abierto, vacio si no hay ningun archivo abierto.
+	private String rutaArchivoTextoAbierto="."; // La ruta es el directorio actual, si no hay un archivo abierto.
 	private boolean archivoTextoAbiertoEditado=false; // Indica si el archivo con el texto técnico se ha modificado. Si es true hay que activar el botón Guardar.
 	// 01
 	//private static String currentDirectory = "";
@@ -252,8 +252,8 @@ public class VentanaPrincipal {
                     if (response == JOptionPane.YES_OPTION) {
                         //btnGuardarTxtTecnico.setEnabled(false);
 						if (guardarArchivoTxtTecnico() == false) {
-							JOptionPane.showMessageDialog(frmTextoASubttulos, "No se pudo guardar el archivo.", "Error",
-									JOptionPane.ERROR_MESSAGE);
+							//JOptionPane.showMessageDialog(frmTextoASubttulos, "No se pudo guardar el archivo.", "Error",
+							//		JOptionPane.ERROR_MESSAGE);
 							return; // Cancelar la acción si no se pudo guardar el archivo
 						}
                     } else if (response == JOptionPane.NO_OPTION) {
@@ -492,11 +492,23 @@ public class VentanaPrincipal {
 	}
 
 	protected boolean guardarArchivoTxtTecnico() {
-		if (archivoTextoTecnicoAbierto.isEmpty()) {
-			JOptionPane.showMessageDialog(frmTextoASubttulos, "No hay archivo abierto para guardar.", "Información",
+		if (archivoTextoAbiertoEditado==false) {
+			JOptionPane.showMessageDialog(frmTextoASubttulos, "No hay cambios para guardar.", "Información",
 					JOptionPane.INFORMATION_MESSAGE);
 			return false;
 		}
+		//En el caso que hay algo para guardar, se comprueba si hay un archivo abierto.
+		if (nombreArchivoTextoAbierto.isEmpty()) {  //En el caso que no haya un archivo abierto. LLamar a guardarComoArchivoTxtTecnico()
+			//Llamar a guardarComoArchivoTxtTecnico();
+			JOptionPane.showMessageDialog(frmTextoASubttulos, "No hay un archivo abierto para guardar.", "Información",
+					JOptionPane.INFORMATION_MESSAGE);
+			guardarComoArchivoTxtTecnico(); // Llamar al método para guardar como
+			return false; // No hay archivo abierto para guardar
+		}else {  //En el caso que si hay un archivo abierto
+		
+		}
+		
+		
 		try {
 			// Guardar el contenido del JTextArea en el archivo seleccionado
 			Files.write(Paths.get(archivoTextoTecnicoAbierto), textoTecnico.getText().getBytes());
@@ -513,12 +525,12 @@ public class VentanaPrincipal {
 		return false; // Indicar que hubo un error al guardar
 	}
 
-	protected void guardarComoArchivoTxtTecnico() {
+	protected boolean guardarComoArchivoTxtTecnico() {
 		// TODO Auto-generated method stub
 
 		JFileChooser fileChooser = new JFileChooser();
-		fileChooser.setCurrentDirectory(new File(currentDirectory));
-		fileChooser.setDialogTitle("Guardar archivo de texto");
+		fileChooser.setCurrentDirectory(new File(rutaArchivoTextoAbierto)); // Usar por defecto el directorio actual con "."
+		fileChooser.setDialogTitle("Guardar archivo de texto, seleccionar ruta y nombre.");
 		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		int result = fileChooser.showSaveDialog(frmTextoASubttulos);
 		if (result == JFileChooser.APPROVE_OPTION) {
@@ -529,20 +541,27 @@ public class VentanaPrincipal {
 				JOptionPane.showMessageDialog(frmTextoASubttulos,
 						"Archivo guardado correctamente: " + selectedFile.getAbsolutePath(), "Éxito",
 						JOptionPane.INFORMATION_MESSAGE);
-				String filePath = selectedFile.getAbsolutePath();
-				archivoTextoTecnicoAbierto = filePath; // Guardar la ruta del archivo abierto
-				frmTextoASubttulos.setTitle(archivoTextoTecnicoAbierto);
-				currentDirectory = selectedFile.getParent(); // Actualizar el directorio actual
+				//Quiero solamente el nombre del archivo sin la ruta.
+				nombreArchivoTextoAbierto = selectedFile.getName(); // Guardar el nombre del archivo abierto
+				//Quiero la ruta del archivo sin el nombre del archivo.
+				rutaArchivoTextoAbierto = selectedFile.getParent(); // Guardar la ruta del directorio del archivo abierto
+				//String filePath = selectedFile.getAbsolutePath();
+				//archivoTextoTecnicoAbierto = filePath; // Guardar la ruta del archivo abierto
+				frmTextoASubttulos.setTitle(nombreArchivoTextoAbierto);
+				//currentDirectory = selectedFile.getParent(); // Actualizar el directorio actual
 				btnGuardarTxtTecnico.setEnabled(false);
 			} catch (IOException ex) {
 				JOptionPane.showMessageDialog(frmTextoASubttulos,
 						"Error al guardar con otro nombre en un archivo: " + ex.getMessage(), "Error",
 						JOptionPane.ERROR_MESSAGE);
+				return false; // Indicar que hubo un error al guardar
 			}
 		} else {
 			JOptionPane.showMessageDialog(frmTextoASubttulos, "Operación cancelada por el usuario.", "Información",
 					JOptionPane.INFORMATION_MESSAGE);
+			return false; // Indicar que el usuario canceló la operación
 		}
+		return true; // Indicar que el guardado fue exitoso
 	}
 
 	private void btnAbrirTxtTecnico_actionPerformed(ActionEvent e) {

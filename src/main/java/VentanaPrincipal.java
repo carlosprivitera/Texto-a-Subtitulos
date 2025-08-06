@@ -50,10 +50,14 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 import java.awt.event.InputMethodListener;
 import java.awt.event.InputMethodEvent;
+import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseAdapter;
 
 public class VentanaPrincipal {
 	private String nombreArchivoTextoAbierto=""; // Nombre del archivo abierto, vacio si no hay ninguno abierto.
-	private String rutaArchivoTextoAbierto="."; // La ruta es el directorio actual, si no hay un archivo abierto.
+	private String rutaArchivoTextoAbierto="."; // La ruta es el directorio actual, vasio si no hay un archivo abierto.
+	private String nombreRutaArchivoTextoAbierto=""; // Nombre y ruta del archivo abierto, vacio si no hay ninguno abierto.
 	private boolean archivoTextoAbiertoEditado=false; // Indica si el archivo con el texto técnico se ha modificado. Si es true hay que activar el botón Guardar.
 	// 01
 	//private static String currentDirectory = "";
@@ -127,9 +131,34 @@ public class VentanaPrincipal {
 	JButton btnNewButton_2 = null;
 	private JButton btnGuardarTxtTecnico;
 	private JButton btnGuardarComoTxtTecnico;
+	private JLabel lblNewLabel;
 
 	private void initialize() {
 		frmTextoASubttulos = new JFrame();
+		frmTextoASubttulos.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				//lblNewLabel.setText("Ayuda: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + "  -" + nombreRutaArchivoTextoAbierto);
+				if (nombreRutaArchivoTextoAbierto.isEmpty()) {
+					lblNewLabel.setText("Ayuda: No hay un archivo abierto.");
+				} else {
+					// lblNewLabel.setText("Ayuda: " +
+					// LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy
+					// HH:mm:ss")) + " -" + nombreRutaArchivoTextoAbierto);
+				   lblNewLabel.setText("Ayuda: " + nombreRutaArchivoTextoAbierto);
+				}
+			}
+			@Override
+			public void mouseExited(MouseEvent e) {
+				lblNewLabel.setText("Ayuda:");
+			}
+		});
+		frmTextoASubttulos.addMouseMotionListener(new MouseMotionAdapter() {
+			@Override
+			public void mouseMoved(MouseEvent e) {
+				
+			}
+		});
 		frmTextoASubttulos.setTitle(tituloVentanaPrincipal);
 		frmTextoASubttulos.setBounds(100, 100, 786, 524);
 		frmTextoASubttulos.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -142,13 +171,57 @@ public class VentanaPrincipal {
 		JToolBar toolBar = new JToolBar();
 		panel.add(toolBar, BorderLayout.NORTH);
 
-		JButton btnNewButton = new JButton("Salir");
-		btnNewButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				System.exit(0);
+		JButton btnSalir = new JButton("Salir");
+		btnSalir.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				
+				if ((nombreArchivoTextoAbierto.isEmpty()==false) && (archivoTextoAbiertoEditado==false)) {
+					lblNewLabel.setText("Ayuda: Hay un archivo abierto y no hay cambios en pantalla para guardar." + " Salida inmediata.");
+				}				
+				if ((nombreArchivoTextoAbierto.isEmpty()==true) && (archivoTextoAbiertoEditado==false)) {
+					lblNewLabel.setText("Ayuda: No hay un archivo abierto y no hay cambios en pantalla para guardar." + " Salida inmediata.");
+				}
+				if ((nombreArchivoTextoAbierto.isEmpty()==true) && (archivoTextoAbiertoEditado==true)) {
+					lblNewLabel.setText("Ayuda: No hay un archivo abierto y hay cambios en pantalla para guardar." + " Debería guardar como antes de salir.");
+				} 
+				if ((nombreArchivoTextoAbierto.isEmpty()==false) && (archivoTextoAbiertoEditado==true)) {
+					lblNewLabel.setText("Ayuda: Hay un archivo abierto y hay cambios en pantalla para guardar." + " Debería guardar antes de salir.");
+				} 
+			}
+			@Override
+			public void mouseExited(MouseEvent e) {
+				lblNewLabel.setText("Ayuda:");
 			}
 		});
-		toolBar.add(btnNewButton);
+		btnSalir.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				boolean salir = true;
+				if ((nombreArchivoTextoAbierto.isEmpty()==true) && (archivoTextoAbiertoEditado==true)) {
+					//lblNewLabel.setText("Ayuda: No hay un archivo abierto y hay cambios en pantalla para guardar." + " Debería guardar como antes de salir.");
+					 salir = guardarComoArchivoTxtTecnico();
+				} 
+				if ((nombreArchivoTextoAbierto.isEmpty()==false) && (archivoTextoAbiertoEditado==true)) {
+					//lblNewLabel.setText("Ayuda: Hay un archivo abierto y hay cambios en pantalla para guardar." + " Debería guardar antes de salir.");
+					salir = guardarArchivoTxtTecnico();
+				} 
+				if (salir==true) {
+				  System.exit(0);
+				}else {
+					Beep.miBeep();
+					lblNewLabel.setText("Ayuda: No se pudo guardar el archivo.");
+					//Mostrar un JOptionPane indicando para dar la opción de salir sin guardar o no salir y continuar trabajando.
+					int response = JOptionPane.showConfirmDialog(frmTextoASubttulos,
+							"¿Desea salir sin guardar los cambios?", "Confirmar", JOptionPane.YES_NO_OPTION);
+					if (response == JOptionPane.YES_OPTION) {
+						System.exit(0);
+					} else {
+						return; // Cancelar la acción si el usuario elige no salir
+					}
+				}
+			}
+		});
+		toolBar.add(btnSalir);
 
 		JSeparator separator = new JSeparator();
 		separator.setOrientation(SwingConstants.VERTICAL);
@@ -218,64 +291,62 @@ public class VentanaPrincipal {
 		JButton btnAbrirTxtTecnico = new JButton("Abrir");
 		btnAbrirTxtTecnico.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (btnGuardarTxtTecnico.isEnabled()) {
+				
+				boolean abrir = true;
+				if ((nombreArchivoTextoAbierto.isEmpty()==true) && (archivoTextoAbiertoEditado==true)) {
+					//lblNewLabel.setText("Ayuda: No hay un archivo abierto y hay cambios en pantalla para guardar." + " Debería guardar como antes de salir.");
+					 abrir = guardarComoArchivoTxtTecnico();
+				} 
+				if ((nombreArchivoTextoAbierto.isEmpty()==false) && (archivoTextoAbiertoEditado==true)) {
+					//lblNewLabel.setText("Ayuda: Hay un archivo abierto y hay cambios en pantalla para guardar." + " Debería guardar antes de salir.");
+					abrir = guardarArchivoTxtTecnico();
+				} 
+				if (abrir==false) {
+					Beep.miBeep();
+					lblNewLabel.setText("Ayuda: No se pudo guardar el archivo.");			
 					int response = JOptionPane.showConfirmDialog(frmTextoASubttulos,
-							"¿Desea guardar los cambios antes de abrir un nuevo archivo?", "Confirmar",
-							JOptionPane.YES_NO_CANCEL_OPTION);
-					if (response == JOptionPane.YES_OPTION) {
-						//btnGuardarTxtTecnico.setEnabled(false);
-						guardarArchivoTxtTecnico();
-					} else if (response == JOptionPane.NO_OPTION) {
-					
-						btnAbrirTxtTecnico.setEnabled(false);
-				        btnAbrirTxtTecnico_actionPerformed(e);
-				        btnAbrirTxtTecnico.setEnabled(true);	
-						
-					} else if (response == JOptionPane.CANCEL_OPTION) {
-						return; // Cancelar la acción si el usuario elige cancelar
-					}
-				} else {
-					btnAbrirTxtTecnico.setEnabled(false);
-					btnAbrirTxtTecnico_actionPerformed(e);
-					btnAbrirTxtTecnico.setEnabled(true);
-				}
+							"¿Desea abrir un nuevo archivo sin guardar los cambios?", "Confirmar", JOptionPane.YES_NO_OPTION);
+					if (response == JOptionPane.NO_OPTION) {
+						return; // Cancelar la acción si el usuario elige no abrir un nuevo archivo
+					} 				
+				} 				
+				btnAbrirTxtTecnico.setEnabled(false);
+		        btnAbrirTxtTecnico_actionPerformed(e);
+		        btnAbrirTxtTecnico.setEnabled(true);
 			}
 		});
 
-		JButton btnNewButton_9 = new JButton("Nuevo");
-		btnNewButton_9.addActionListener(new ActionListener() {
+		JButton btnNuevoArchivo = new JButton("Nuevo");
+		btnNuevoArchivo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(archivoTextoAbiertoEditado) {
-                    int response = JOptionPane.showConfirmDialog(frmTextoASubttulos,
-                            "¿Desea guardar los cambios antes de crear un nuevo archivo?", "Confirmar",
-                            JOptionPane.YES_NO_CANCEL_OPTION);
-                    if (response == JOptionPane.YES_OPTION) {
-                        //btnGuardarTxtTecnico.setEnabled(false);
-						if (guardarArchivoTxtTecnico() == false) {
-							//JOptionPane.showMessageDialog(frmTextoASubttulos, "No se pudo guardar el archivo.", "Error",
-							//		JOptionPane.ERROR_MESSAGE);
-							return; // Cancelar la acción si no se pudo guardar el archivo
-						}
-                    } else if (response == JOptionPane.NO_OPTION) {
-						// No guardar, no hacer nada y continuar con la creación de un nuevo archivo
-                    	
-                    } else if (response == JOptionPane.CANCEL_OPTION) {
-                        return; // Cancelar la acción si el usuario elige cancelar
-                    }
-				} else {
-					//Este beep es para indicar que en pantalla habia un contenido sin cambio y se remplazó por un archivo nuevo sin nombre.
+				boolean nuevo = true;
+				if ((nombreArchivoTextoAbierto.isEmpty()==true) && (archivoTextoAbiertoEditado==true)) {
+					//lblNewLabel.setText("Ayuda: No hay un archivo abierto y hay cambios en pantalla para guardar." + " Debería guardar como antes de salir.");
+					 nuevo = guardarComoArchivoTxtTecnico();
+				} 
+				if ((nombreArchivoTextoAbierto.isEmpty()==false) && (archivoTextoAbiertoEditado==true)) {
+					//lblNewLabel.setText("Ayuda: Hay un archivo abierto y hay cambios en pantalla para guardar." + " Debería guardar antes de salir.");
+					nuevo = guardarArchivoTxtTecnico();
+				} 
+				if (nuevo==false) {
 					Beep.miBeep();
-					//Toolkit.getDefaultToolkit().beep();
-				}
+					lblNewLabel.setText("Ayuda: No se pudo guardar el archivo.");			
+					int response = JOptionPane.showConfirmDialog(frmTextoASubttulos,
+							"¿Desea crear un nuevo archivo sin guardar los cambios?", "Confirmar", JOptionPane.YES_NO_OPTION);
+					if (response == JOptionPane.NO_OPTION) {
+						return; // Cancelar la acción si el usuario elige no crear un nuevo archivo
+					} 				
+				} 
 				textoTecnico.setText(""); // Limpiar el JTextArea
-				nombreArchivoTextoAbierto = ""; // Reiniciar el nombre del archivo
-				frmTextoASubttulos.setTitle(tituloVentanaPrincipal); // Reiniciar el título de la ventana
-				btnGuardarTxtTecnico.setEnabled(false); // Deshabilitar el botón de guardar
-				// btnGuardarComoTxtTecnico.setEnabled(true); // Habilitar el botón de guardar
-				// como
+	        	nombreArchivoTextoAbierto = ""; // Reiniciar el nombre del archivo
+		        frmTextoASubttulos.setTitle(tituloVentanaPrincipal); // Reiniciar el título de la ventana
+		        btnGuardarTxtTecnico.setEnabled(false); // Deshabilitar el botón de guardar	
+		        archivoTextoAbiertoEditado = false; // Reiniciar el estado de edición
+		        rutaArchivoTextoAbierto = "."; // Reiniciar la ruta del directorio
+		        nombreRutaArchivoTextoAbierto = ""; // Reiniciar el nombre y ruta del archivo abierto                
 			}
 		});
-		toolBar_1.add(btnNewButton_9);
+		toolBar_1.add(btnNuevoArchivo);
 		btnAbrirTxtTecnico.setToolTipText("Abrir un archivo TXT");
 		toolBar_1.add(btnAbrirTxtTecnico);
 
@@ -284,7 +355,7 @@ public class VentanaPrincipal {
 			public void actionPerformed(ActionEvent e) {
 				btnGuardarComoTxtTecnico.setEnabled(false);
 				guardarComoArchivoTxtTecnico();
-				//btnGuardarComoTxtTecnico.setEnabled(true);
+				btnGuardarComoTxtTecnico.setEnabled(true);
 
 			}
 		});
@@ -440,7 +511,12 @@ public class VentanaPrincipal {
 				"Hola, procesando títulos \nEste es el segundo subtítulo, dividido en dos subtítulos.\nEste es el cuarto subtítulo.\n");
 		scrollPane_1.setViewportView(textoTecnico);
 
-		JLabel lblNewLabel = new JLabel("Ayuda");
+		lblNewLabel = new JLabel("Ayuda");
+		lblNewLabel.addMouseMotionListener(new MouseMotionAdapter() {
+			@Override
+			public void mouseMoved(MouseEvent e) {
+			}
+		});
 		frmTextoASubttulos.getContentPane().add(lblNewLabel, BorderLayout.SOUTH);
 	}
 
@@ -492,42 +568,20 @@ public class VentanaPrincipal {
 	}
 
 	protected boolean guardarArchivoTxtTecnico() {
-		if (archivoTextoAbiertoEditado==false) {
-			JOptionPane.showMessageDialog(frmTextoASubttulos, "No hay cambios para guardar.", "Información",
-					JOptionPane.INFORMATION_MESSAGE);
-			return false;
-		}
-		//En el caso que hay algo para guardar, se comprueba si hay un archivo abierto.
-		if (nombreArchivoTextoAbierto.isEmpty()) {  //En el caso que no haya un archivo abierto. LLamar a guardarComoArchivoTxtTecnico()
-			//Llamar a guardarComoArchivoTxtTecnico();
-			JOptionPane.showMessageDialog(frmTextoASubttulos, "No hay un archivo abierto para guardar.", "Información",
-					JOptionPane.INFORMATION_MESSAGE);
-			guardarComoArchivoTxtTecnico(); // Llamar al método para guardar como
-			return false; // No hay archivo abierto para guardar
-		}else {  //En el caso que si hay un archivo abierto
-		
-		}
-		
-		
-		try {
-			// Guardar el contenido del JTextArea en el archivo seleccionado
-			Files.write(Paths.get(archivoTextoTecnicoAbierto), textoTecnico.getText().getBytes());
-			btnGuardarTxtTecnico.setEnabled(false);
-			JOptionPane.showMessageDialog(frmTextoASubttulos,
-					"Archivo guardado correctamente: " + archivoTextoTecnicoAbierto, "Éxito",
-					JOptionPane.INFORMATION_MESSAGE);
-			return true; // Indicar que el guardado fue exitoso
-			
-		} catch (IOException ex) {
-			JOptionPane.showMessageDialog(frmTextoASubttulos, "Error al guardar el archivo: " + ex.getMessage(),
-					"Error", JOptionPane.ERROR_MESSAGE);
-		}
-		return false; // Indicar que hubo un error al guardar
+			try {
+				Files.write(Paths.get(nombreRutaArchivoTextoAbierto), textoTecnico.getText().getBytes());
+				JOptionPane.showMessageDialog(frmTextoASubttulos,
+						"Archivo guardado correctamente: " + nombreArchivoTextoAbierto, "Éxito",
+						JOptionPane.INFORMATION_MESSAGE);
+				return true; // Indicar que el guardado fue exitoso
+			} catch (IOException ex) {
+				JOptionPane.showMessageDialog(frmTextoASubttulos, "Error al guardar el archivo: " + ex.getMessage(),
+						"Error", JOptionPane.ERROR_MESSAGE);
+				return false; // Indicar que hubo un error al guardar
+			}
 	}
 
 	protected boolean guardarComoArchivoTxtTecnico() {
-		// TODO Auto-generated method stub
-
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setCurrentDirectory(new File(rutaArchivoTextoAbierto)); // Usar por defecto el directorio actual con "."
 		fileChooser.setDialogTitle("Guardar archivo de texto, seleccionar ruta y nombre.");
@@ -536,20 +590,15 @@ public class VentanaPrincipal {
 		if (result == JFileChooser.APPROVE_OPTION) {
 			File selectedFile = fileChooser.getSelectedFile();
 			try {
-				// Guardar el contenido del JTextArea en el archivo seleccionado
+				// Guardar el contenido del JTextArea en el archivo seleccionado por el usuario con el JFileChooser
 				Files.write(Paths.get(selectedFile.getAbsolutePath()), textoTecnico.getText().getBytes());
 				JOptionPane.showMessageDialog(frmTextoASubttulos,
 						"Archivo guardado correctamente: " + selectedFile.getAbsolutePath(), "Éxito",
 						JOptionPane.INFORMATION_MESSAGE);
-				//Quiero solamente el nombre del archivo sin la ruta.
 				nombreArchivoTextoAbierto = selectedFile.getName(); // Guardar el nombre del archivo abierto
-				//Quiero la ruta del archivo sin el nombre del archivo.
 				rutaArchivoTextoAbierto = selectedFile.getParent(); // Guardar la ruta del directorio del archivo abierto
-				//String filePath = selectedFile.getAbsolutePath();
-				//archivoTextoTecnicoAbierto = filePath; // Guardar la ruta del archivo abierto
+				nombreRutaArchivoTextoAbierto = selectedFile.getAbsolutePath(); // Guardar el nombre y ruta del archivo abierto
 				frmTextoASubttulos.setTitle(nombreArchivoTextoAbierto);
-				//currentDirectory = selectedFile.getParent(); // Actualizar el directorio actual
-				btnGuardarTxtTecnico.setEnabled(false);
 			} catch (IOException ex) {
 				JOptionPane.showMessageDialog(frmTextoASubttulos,
 						"Error al guardar con otro nombre en un archivo: " + ex.getMessage(), "Error",
@@ -565,33 +614,22 @@ public class VentanaPrincipal {
 	}
 
 	private void btnAbrirTxtTecnico_actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
-		// Copilot, leer un archivo de texto y mostrar su contenido en el JTextArea
-		// textArea. Usar el componente JFileChooser para seleccionar el archivo,
-		// la interfaz gráfica de JFileChooser debe permitir: navegar por los directorio
-		// desde el raíz del proyecto Java,
-		// seleccionar un archivo *.txt existente o crear un archivo del tipo *.xtx si
-		// no exsiste.
 		JFileChooser fileChooser = new JFileChooser();
-		fileChooser.setCurrentDirectory(new File(currentDirectory));
-		fileChooser.setDialogTitle("Seleccionar archivo de texto");
+		fileChooser.setCurrentDirectory(new File(rutaArchivoTextoAbierto));
+		fileChooser.setDialogTitle("Seleccionar archivo de texto para convertir a subtítulos.");
 		fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		int result = fileChooser.showOpenDialog(frmTextoASubttulos);
 		if (result == JFileChooser.APPROVE_OPTION) {
 			File selectedFile = fileChooser.getSelectedFile();
 			try {
 				String content = new String(Files.readAllBytes(Paths.get(selectedFile.getAbsolutePath())));
-				// textArea.setText(content);
 				textoTecnico.setText(content);
-				
-				
-				String filePath = selectedFile.getAbsolutePath();
-				archivoTextoTecnicoAbierto = filePath; // Guardar la ruta del archivo abierto
-				frmTextoASubttulos.setTitle(archivoTextoTecnicoAbierto);
-				currentDirectory = selectedFile.getParent(); // Actualizar el directorio actual
-				btnGuardarTxtTecnico.setEnabled(false);
-				//btnGuardarComoTxtTecnico.setEnabled(true);
-				
+				nombreArchivoTextoAbierto = selectedFile.getName(); // Guardar el nombre del archivo abierto
+				rutaArchivoTextoAbierto = selectedFile.getParent(); // Guardar la ruta del directorio del archivo abierto
+				nombreRutaArchivoTextoAbierto = selectedFile.getAbsolutePath(); // Guardar el nombre y ruta del archivo abierto
+				frmTextoASubttulos.setTitle(nombreArchivoTextoAbierto); // Actualizar el título de la ventana
+				archivoTextoAbiertoEditado = false; // Reiniciar el estado de edición
+				btnGuardarTxtTecnico.setEnabled(false); // Deshabilitar el botón de guardar
 				
 			} catch (IOException ex) {
 				JOptionPane.showMessageDialog(frmTextoASubttulos, "Error al leer el archivo: " + ex.getMessage(),

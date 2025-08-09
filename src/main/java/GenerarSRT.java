@@ -4,7 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.UnsupportedFlavorException;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -40,6 +42,9 @@ public class GenerarSRT extends JDialog {
 	private JButton btnWAV;
 	private JComboBox comboBoxUTF;
 	private JButton btnExportar;
+	private String textoTecnico = "";
+	private JComboBox comboBox1;
+	private JComboBox comboBox2;
 
 	/**
 	 * Launch the application.
@@ -77,6 +82,11 @@ public class GenerarSRT extends JDialog {
 			}
 			{
 				JButton btnPegar = new JButton("Pegar");
+				btnPegar.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						miButtonPegar_1actionPerformed(e);
+					}
+				});
 				toolBar.add(btnPegar);
 			}
 			{
@@ -124,7 +134,9 @@ public class GenerarSRT extends JDialog {
 				toolBar.add(lblSEP);
 			}
 			{
-				JComboBox comboBox1 = new JComboBox();
+				comboBox1 = new JComboBox();
+				comboBox1.setModel(new DefaultComboBoxModel(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9" }));
+				comboBox1.setSelectedIndex(0);
 				toolBar.add(comboBox1);
 			}
 			{
@@ -133,7 +145,11 @@ public class GenerarSRT extends JDialog {
 				toolBar.add(lblMPL);
 			}
 			{
-				JComboBox comboBox2 = new JComboBox();
+				comboBox2 = new JComboBox();
+				comboBox2.setModel(new DefaultComboBoxModel(new String[] { "30", "35", "40", "45", "50", "55", "60", "65", "70",
+						"75", "80", "85", "90", "95", "100", "110", "120", "130", "140" }));
+				comboBox2.setSelectedIndex(6);
+
 				toolBar.add(comboBox2);
 			}
 		}
@@ -372,5 +388,132 @@ public class GenerarSRT extends JDialog {
 
 		this.btnExportar.setEnabled(true);
 	}
+
+	public void setTextoTecnico(String texto) {
+        textoTecnico = texto;
+	}
+	
+	protected void btnNewButton_5actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		String titulosSTR = null;
+		Float a = Float.parseFloat(comboBox1.getSelectedItem().toString());
+		Float b = Float.parseFloat(this.comboBox2.getSelectedItem().toString()) / 1000;
+		try {
+			//String textoTXTaSRT = this.textoTecnico.getText();
+			titulosSTR = convertToSRT(a, b, textoTecnico);
+		} catch (Exception er) {
+			// TODO Auto-generated catch block
+			JOptionPane.showMessageDialog(null, er.getMessage());
+		} finally {
+			this.textArea.setText(titulosSTR);
+		}
+	}
+	
+	private String convertToSRT(Float timeBetweenParagraphs, Float timeBetweenLetters, String textoTXTaSRT)
+			throws IOException, UnsupportedFlavorException {
+		// Get text from clipboard
+//##        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+//##        String text = (String) clipboard.getData(DataFlavor.stringFlavor);
+//##        String text2 = (String) clipboard.getData(DataFlavor.stringFlavor);
+		// Procesar los párrafos separandolos.
+		String text2 = procesarTextoParrafos(textoTXTaSRT);
+		/////////////////////////////////////////////
+		// Procesar los párrafos separando las comas.
+		text2 = procesarTextoComas(text2);
+		/////////////////////////////////////////////
+//##        this.txtrHolaEsteEs.setText(text);
+		String[] paragraphs = text2.split("\n");
+		StringBuilder srt = new StringBuilder();
+		int counter = 1;
+		float currentTime = 0.0f;
+
+		for (String paragraph : paragraphs) {
+			paragraph = paragraph.trim();
+			if (!paragraph.isEmpty()) {
+				int letterCount = paragraph.length();
+				float duration = letterCount * timeBetweenLetters;
+
+				String startTime = formatTime(currentTime);
+				String endTime = formatTime(currentTime + duration);
+
+				srt.append(counter).append("\n");
+				srt.append(startTime).append(" --> ").append(endTime).append("\n");
+				srt.append(paragraph).append("\n\n");
+
+				currentTime += duration + timeBetweenParagraphs;
+				counter++;
+			}
+		}
+
+		return srt.toString();
+	}
+	
+	public static String procesarTextoParrafos(String texto) {
+		// Expresión regular para detectar los párrafos que cumplen con las condiciones
+		// String regex = "(?<=\\b[A-Z][^\\.]*)\\.(?=\\s+[a-z0-9])";
+		String regex = "(?<=\\b[A-Z][^\\.]*)\\.(?=\\s+[A-Z0-9])";
+		String procesado = "";
+		procesado = texto;
+		// Reemplazar el punto seguido de espacio por punto seguido de salto de línea
+		procesado = procesado.replaceAll(regex, ".\n");
+
+		// Expresión regular para detectar espacios en blanco al inicio de cada párrafo
+		regex = "(?m)^\\s+";
+
+		// Reemplazar los espacios en blanco al inicio de cada párrafo con una cadena
+		// vacía
+		procesado = procesado.replaceAll(regex, "");
+
+		return procesado;
+	}
+
+	public static String procesarTextoComas(String texto) {
+		// Expresión regular para detectar los párrafos que cumplen con las condiciones
+		String regexParrafo = "(?m)^[A-Z].*?[a-z0-9]\\.$";
+		String regexComa = ",\\s*";
+
+		// Procesar cada párrafo que cumple con las condiciones
+		StringBuilder resultado = new StringBuilder();
+		String[] parrafos = texto.split("\n"); // se sacó /n/n
+		for (String parrafo : parrafos) {
+			if (parrafo.matches(regexParrafo)) {
+				parrafo = parrafo.replaceAll(regexComa, ",\n");
+			}
+			resultado.append(parrafo).append("\n"); // se sacó /n/n
+		}
+
+		return resultado.toString().trim();
+	}
+
+	private String formatTime(float seconds) {
+		int hours = (int) seconds / 3600;
+		int minutes = ((int) seconds % 3600) / 60;
+		int secs = (int) seconds % 60;
+		int millis = (int) ((seconds - (int) seconds) * 1000);
+
+		return String.format("%02d:%02d:%02d,%03d", hours, minutes, secs, millis);
+	}
+
+	private void miButtonPegar_1actionPerformed(ActionEvent arg0) {
+		String titulosSTR = null;
+		Float a = Float.parseFloat(comboBox1.getSelectedItem().toString());
+		Float b = Float.parseFloat(this.comboBox2.getSelectedItem().toString()) / 1000;
+		try {
+			// Get text from clipboard
+			Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+			String text2 = (String) clipboard.getData(DataFlavor.stringFlavor);
+			textoTecnico = text2;
+			String textoTXTaSRT = textoTecnico;
+			titulosSTR = convertToSRT(a, b, textoTXTaSRT);
+		} catch (IOException | UnsupportedFlavorException e) {
+			// TODO Auto-generated catch block
+			JOptionPane.showMessageDialog(null, "Error al procesar el texto: " + e.getMessage());
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Error al procesar el texto: " + e.getMessage());
+		} finally {
+			this.textArea.setText(titulosSTR);
+		}
+	}
+
 	
 }

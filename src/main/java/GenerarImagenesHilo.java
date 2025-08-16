@@ -75,6 +75,7 @@ public class GenerarImagenesHilo {
     				}
     			}
     			//hiloGenerarImagen.sleep(100); // Para evitar saturar el hilo de la interfaz
+    			//Controlar java.lang.InterruptedException en caso de detener el proceso
     			int exitCode = process.waitFor();//esta línea espera a que el proceso termine y captura su código de salida
     			//hiloGenerarImagen.sleep(100); // Para evitar saturar el hilo de la interfaz
 				if (GenerarImagenes.getContadorImagenesProcesadas() <= GenerarImagenes.getTotalImagenesProcesar()) {

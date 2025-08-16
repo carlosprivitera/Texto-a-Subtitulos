@@ -39,7 +39,7 @@ public class GenerarPrompt extends JDialog {
 	private JButton btnAbrir;
 	private JButton btnGuardar;
 	private JButton btnGuardarComo;
-	private JButton btnPreguntarMistral7Bv02;
+	private JButton btnGenararPromptMistral7Bv02;
 	private JTextArea respuestaIA;
 
 	/**
@@ -244,8 +244,8 @@ public class GenerarPrompt extends JDialog {
 		JToolBar toolBar_3 = new JToolBar();
 		panel_2.add(toolBar_3, BorderLayout.NORTH);
 		
-		btnPreguntarMistral7Bv02 = new JButton("Generar");
-		btnPreguntarMistral7Bv02.addActionListener(new ActionListener() {
+		btnGenararPromptMistral7Bv02 = new JButton("Generar prompt");
+		btnGenararPromptMistral7Bv02.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String promptMasTextoTecnico;
 				if (chckbxConcatenarAlPrompt.isSelected()) {
@@ -260,7 +260,15 @@ public class GenerarPrompt extends JDialog {
 				}
 			}
 		});
-		toolBar_3.add(btnPreguntarMistral7Bv02);
+		toolBar_3.add(btnGenararPromptMistral7Bv02);
+		
+		JButton generarPNG = new JButton("Crear PNG");
+		generarPNG.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				crearImagenesPNG();
+			}
+		});
+		toolBar_3.add(generarPNG);
 		splitPane.setDividerLocation(300);
 		
 		JLabel lblNewLabel = new JLabel("New label");
@@ -269,6 +277,13 @@ public class GenerarPrompt extends JDialog {
 		miInicializar();
 	}
 	
+	protected void crearImagenesPNG() {
+		// TODO Auto-generated method stub
+		GenerarImagenes generarImagenes = new GenerarImagenes();
+		generarImagenes.setLocationRelativeTo(null);
+		generarImagenes.setVisible(true);
+	}
+
 	protected void ejecutarMistral7Bv02Responder(String text, JTextArea respuestaIA2) {
 		// TODO Auto-generated method stub
 		MistralLLM7Bv02 mistralLLM7Bv02 = new MistralLLM7Bv02();

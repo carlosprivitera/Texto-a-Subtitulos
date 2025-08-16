@@ -90,17 +90,6 @@ public class GenerarSRT extends JDialog {
 				toolBar.add(btnPegar);
 			}
 			{
-				JButton btnPNG = new JButton("PNG");
-				btnPNG.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						btnPNG.setEnabled(false);
-						btnGenerarImagenClicked(e);
-						btnPNG.setEnabled(true);
-					}
-				});
-				toolBar.add(btnPNG);
-			}
-			{
 				btnWAV = new JButton("WAV");
 				btnWAV.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
@@ -109,11 +98,11 @@ public class GenerarSRT extends JDialog {
 						btnWAV.setEnabled(true);
 					}
 				});
-				btnWAV.setToolTipText("Generar archivos de sonido *.wav");
+				btnWAV.setToolTipText("Exportar a sonido *.wav");
 				toolBar.add(btnWAV);
 			}
 			{
-				btnExportar = new JButton("Exportar");
+				btnExportar = new JButton("SRT");
 				btnExportar.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						String s = comboBoxUTF.getSelectedItem().toString();
@@ -188,14 +177,7 @@ public class GenerarSRT extends JDialog {
 		clipboard.setContents(stringSelection, null);
 	}
 	
-	protected void btnGenerarImagenClicked(ActionEvent e) {
-		// TODO Auto-generated method stub
-		GenerarImagenes generarImagenes = new GenerarImagenes();
-		generarImagenes.setLocationRelativeTo(this);
-		generarImagenes.setVisible(true);
-
-	}
-	
+		
 	private void btnWAVClicked(ActionEvent e) {
 		String seleccion = textArea.getSelectedText();
 		if (seleccion == null || seleccion.trim().isEmpty()) {
@@ -391,6 +373,17 @@ public class GenerarSRT extends JDialog {
 
 	public void setTextoTecnico(String texto) {
         textoTecnico = texto;
+        //LLamar al método que precesa textoTexnico y lo convierte a SRT y lo copia en textArea.
+        String titulosSTR = null;
+        Float a = Float.parseFloat(comboBox1.getSelectedItem().toString());
+        Float b = Float.parseFloat(this.comboBox2.getSelectedItem().toString()) / 1000;
+		try {
+			titulosSTR = convertToSRT(a, b, textoTecnico);
+		} catch (Exception er) {
+			JOptionPane.showMessageDialog(null, er.getMessage());
+		} finally {
+			this.textArea.setText(titulosSTR);
+		}
 	}
 	
 	protected void btnNewButton_5actionPerformed(ActionEvent e) {

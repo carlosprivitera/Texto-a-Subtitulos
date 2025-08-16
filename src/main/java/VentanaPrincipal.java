@@ -424,9 +424,6 @@ public class VentanaPrincipal {
 
 		JSeparator separator_3 = new JSeparator();
 		toolBar_1.add(separator_3);
-
-		JButton btnPNG = new JButton("PNG");
-		toolBar_1.add(btnPNG);
 		toolBar_1.add(btnGenerarPrompt);
 		toolBar_1.add(btnGenerarSRT);
 
@@ -477,6 +474,7 @@ public class VentanaPrincipal {
 		});
 		frmTextoASubttulos.getContentPane().add(lblNewLabel, BorderLayout.SOUTH);
 	}
+
 
 	protected void cargarVentanaGenerarSRT(ActionEvent e) {
 		// TODO Auto-generated method stub
